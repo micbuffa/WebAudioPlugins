@@ -37,7 +37,7 @@ Along with the online documentation, we propose simple examples/tutorials both f
 
 **Example 1: very simple HTML page that acts as a host by loading a headless plug-in**: the source code below shows extracts of a minimal host implementation that loads a headless plug-in and connects it to the Web Audio graph:
 
-[This example can be tried online at JsBin](https://jsbin.com/fidevim/edit?html,js,console,output)
+[This example can be tried online at JsBin](https://jsbin.com/xevahu/edit?html,js,console,output)
 
 ```javascript
  var ctx = new AudioContext();
@@ -53,5 +53,33 @@ Along with the online documentation, we propose simple examples/tutorials both f
  });
 ```
 
-Behind the scenes,  a JSON metadata file is loaded from the plug-in URI. A <script src="..."></script> HTML tag is added if needed. Following that, the plug-in is initialized. Since it may load assets such as image files or a WASM module asynchronously, the load method returns a JavaScript promise. In this example, the name of the plug-in class is hard-coded but it could have been built dynamically from the content of the plug-in metadata JSON file (further examples show how to do this, such as the online plug-in tester from Fig 5). From a host point of view, the plug-in might be of any kind: a Web Audio graph in a CompositeNode or a single CustomNode (AudioWorklet) node, written in JavaScript or in WebAssembly, etc. 
+Behind the scenes,  a JSON metadata file is loaded from the plug-in URI. A <script src="..."></script> HTML tag is added if needed. Following that, the plug-in is initialized. Since it may load assets such as image files or a WASM module asynchronously, the load method returns a JavaScript promise. In this example, the name of the plug-in class is hard-coded but it could have been built dynamically from the content of the plug-in metadata JSON file (further examples show how to do this, such as the online plug-in tester shown further). From a host point of view, the plug-in might be of any kind: a Web Audio graph in a CompositeNode or a single CustomNode (AudioWorklet) node, written in JavaScript or in WebAssembly, etc. We will detail the different plugin files and their content later on...
+
+**Example 2: same example as previous one, this time loading the plug-in with its GUI**: this shows the same example but this time, we also load asynchronously the GUI code (HTML, CSS, JS). The loadGUI method returns a single HTML element that contains the whole plug-in GUI. Here again, the method is asynchronous and returns a promise as a plug-in can have to load images for knobs, etc.
+The load and loadGUI methods implementations are inherited by default when you extend the WebAudioPluginFactory class from the SDK, but can be overridden by the developer. In our examples, we use Web Components to package the GUI files in a single HTML file, adding encapsulation and avoiding any naming conflicts. Behind the scenes the default loadGUI method creates a <link rel="import" href="main.html"> when needed. If one prefers to use a canvas etc. for the GUI, just override the loadGUI method.
+More detailed examples are available on the documentation pages of the WAP proposal. Some show in particular how to do real dynamic discovery, without hard coding any class names in the host code. 
+
+[This example can be tried online at JsBin](https://jsbin.com/fidevim/edit?html,js,console,output)
+
+```javascript
+ var ctx = new AudioContext();
+  var player = document.getElementById("soundSample");
+  var mediaSource = ctx.createMediaElementSource(player);
+  var intermediateGain = ctx.createGain();
+
+  var pluginURL = "https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay3";
+  var plugin = new WAPlugin.WasabiPingPongDelay(ctx, pluginURL);
+
+  plugin.load().then((node)=>{
+    console.log("node",node);
+
+    plugin.loadGui().then((elem)=>{
+      console.log("elem",elem);
+      document.body.appendChild(elem);
+    });
+    mediaSource.connect(node);
+    node.connect(ctx.destination);
+  });
+```
+TO BE CONTINUED
 
