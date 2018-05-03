@@ -35,7 +35,9 @@ A WAP endpoint is described by a URI, which may point to an online or local file
 ## Online Tools, Tutorials and Examples
 Along with the online documentation, we propose simple examples/tutorials both for the “host side” and “plug-in side” of our proposal, as well as online tools such as validators/testers. Some are presented in the different examples that follow. 
 
-**Example 1: ery simple HTML page that acts as a host by loading a headless plug-in**: the source code below shows extracts of a minimal host implementation that loads a headless plug-in and connects it to the Web Audio graph:
+**Example 1: very simple HTML page that acts as a host by loading a headless plug-in**: the source code below shows extracts of a minimal host implementation that loads a headless plug-in and connects it to the Web Audio graph:
+
+[This example can be tried online at JsBin](https://jsbin.com/fidevim/edit?html,js,console,output)
 
 ```javascript
  var ctx = new AudioContext();
