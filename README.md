@@ -60,7 +60,11 @@ Behind the scenes,  a JSON metadata file is loaded from the plug-in URI. A <scri
 The load and loadGUI methods implementations are inherited by default when you extend the WebAudioPluginFactory class from the SDK, but can be overridden by the developer. In our examples, we use Web Components to package the GUI files in a single HTML file, adding encapsulation and avoiding any naming conflicts. Behind the scenes the default loadGUI method creates a <link rel="import" href="main.html"> when needed. If one prefers to use a canvas etc. for the GUI, just override the loadGUI method.
 More detailed examples are available on the documentation pages of the WAP proposal. Some show in particular how to do real dynamic discovery, without hard coding any class names in the host code. 
 
+
+![WAP pluginWithGUI](/imgs/PluginWithGUI.png)
+
 [This example can be tried online at JsBin](https://jsbin.com/fidevim/edit?html,js,console,output)
+
 
 ```javascript
  var ctx = new AudioContext();
