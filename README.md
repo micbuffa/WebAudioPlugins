@@ -18,7 +18,7 @@ A Web Audio plug-in standard should be “Web aware” and use URIs as identifie
 ### Support for different WAP approaches 
 A Web Audio Plug-in standard should be able to support multiple approaches in terms of programming language and programming environment, including pure JavaScript, C++ (via WebAssembly) and domain specific languages. It should be possible to port existing code bases across to work as a WAP and DSLs should be usable for the audio processing part. For example the [WebAudioModules](http://webaudiomodules.org/) allow the porting of native plug-ins to WAPs, and this has been demonstrated by porting several plug-ins originally made with JUCE. The iPlug 2 framework supports the WAM format and therefore could support WAPs, allowing existing iPlug plug-ins to be compiled to the format. The FAUST creators have developed a script to compile FAUST .dsp files to WAPs , and more importers/exporters are on the way.
 
-FIGURE XXX
+![WAP Ecosystem](/imgs/worldDominationPlan4.png)
 
 
 ## A Draft Specification
