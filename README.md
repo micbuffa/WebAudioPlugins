@@ -18,7 +18,7 @@ A Web Audio plug-in standard should be “Web aware” and use URIs as identifie
 ### Support for different WAP approaches 
 A Web Audio Plug-in standard should be able to support multiple approaches in terms of programming language and programming environment, including pure JavaScript, C++ (via WebAssembly) and domain specific languages. It should be possible to port existing code bases across to work as a WAP and DSLs should be usable for the audio processing part. For example the [WebAudioModules](http://webaudiomodules.org/) allow the porting of native plug-ins to WAPs, and this has been demonstrated by porting several plug-ins originally made with JUCE. The iPlug 2 framework supports the WAM format and therefore could support WAPs, allowing existing iPlug plug-ins to be compiled to the format. The FAUST creators have developed a script to compile FAUST .dsp files to WAPs , and more importers/exporters are on the way.
 
-FIGURE XXX
+![WAP Ecosystem](/imgs/worldDominationPlan4.png)
 
 
 ## A Draft Specification
@@ -60,7 +60,11 @@ Behind the scenes,  a JSON metadata file is loaded from the plug-in URI. A <scri
 The load and loadGUI methods implementations are inherited by default when you extend the WebAudioPluginFactory class from the SDK, but can be overridden by the developer. In our examples, we use Web Components to package the GUI files in a single HTML file, adding encapsulation and avoiding any naming conflicts. Behind the scenes the default loadGUI method creates a <link rel="import" href="main.html"> when needed. If one prefers to use a canvas etc. for the GUI, just override the loadGUI method.
 More detailed examples are available on the documentation pages of the WAP proposal. Some show in particular how to do real dynamic discovery, without hard coding any class names in the host code. 
 
+
+![WAP pluginWithGUI](/imgs/PluginWithGUI.png)
+
 [This example can be tried online at JsBin](https://jsbin.com/fidevim/edit?html,js,console,output)
+
 
 ```javascript
  var ctx = new AudioContext();
@@ -82,5 +86,21 @@ More detailed examples are available on the documentation pages of the WAP propo
     node.connect(ctx.destination);
   });
 ```
-TO BE CONTINUED
+**Example 3: plug-in online validator**: this online tool uses this dynamic behavior and is provided to plug-in developers to test their work.  Copy and paste a plug-in URI and the code will be downloaded, the plug-in tested, and if a minimal set of tests passed, the plug-in will be runnable on the page and its GUI displayed, etc. You can then publish it on a repository. Notice that not all tests are mandatory to make the plug-in usable. For example, if a plug-in does not implement the load/save of its parameter state, it is still usable. 
+
+
+![WAP pluginTester](/imgs/PluginTester.png)
+
+[This example can be tried online](https://wasabi.i3s.unice.fr/WebAudioPluginBank/testers/test2.html)
+
+If you look at the source code of the tester (in the subfolder named "testers") you will see we can dynamically load a plugin, only knowing its URI.
+
+**Example 4: Plug-in repository online validator**, enter the URI of a REST endpoint and the list of plug-ins (with associated URIs) is first fetched, and then, in a second time, each plug-in metadata file is also fetched. Each plug-in thumbnail is displayed on the page and can be clicked to test the corresponding plug-in. If mandatory tests passed, then you’ll be able to try the plug-in online and get a full unit test report.
+
+![WAP pluginTester](/imgs/RepoTester2.png)
+
+[This example can be tried online](https://wasabi.i3s.unice.fr/WebAudioPluginBank/testers/explorandtest.html)
+
+
+
 
