@@ -20,6 +20,7 @@ A Web Audio Plug-in standard should be able to support multiple approaches in te
 
 FIGURE XXX
 
+
 ## A Draft Specification
 The goal of our [draft Web Audio plug-in API proposal](xxx) is to devise a minimal set of mechanisms that allow interoperation between our independently developed frameworks. A high level overview of the proposal is given below.
 
