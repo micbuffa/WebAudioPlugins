@@ -46,7 +46,7 @@ Along with the online documentation, we propose simple examples/tutorials both f
 
  var mediaSource = ctx.createMediaElementSource(player);
  var pluginURL = "https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay3";
- var plugin = new WAPlugin.WasabiPingPongDelay(ctx, pluginURL);
+ var plugin = new WasabiPingPongDelay(ctx, pluginURL);
 
  plugin.load().then((node)=>{
    mediaSource.connect(node);
