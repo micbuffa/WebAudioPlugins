@@ -86,5 +86,21 @@ More detailed examples are available on the documentation pages of the WAP propo
     node.connect(ctx.destination);
   });
 ```
-TO BE CONTINUED
+**Example 3: plug-in online validator**: this online tool uses this dynamic behavior and is provided to plug-in developers to test their work.  Copy and paste a plug-in URI and the code will be downloaded, the plug-in tested, and if a minimal set of tests passed, the plug-in will be runnable on the page and its GUI displayed, etc. You can then publish it on a repository. Notice that not all tests are mandatory to make the plug-in usable. For example, if a plug-in does not implement the load/save of its parameter state, it is still usable. 
+
+
+![WAP pluginTester](/imgs/PluginTester.png)
+
+[This example can be tried online](https://wasabi.i3s.unice.fr/WebAudioPluginBank/testers/test2.html)
+
+If you look at the source code of the tester (in the subfolder named "testers") you will see we can dynamically load a plugin, only knowing its URI.
+
+**Example 4: Plug-in repository online validator**, enter the URI of a REST endpoint and the list of plug-ins (with associated URIs) is first fetched, and then, in a second time, each plug-in metadata file is also fetched. Each plug-in thumbnail is displayed on the page and can be clicked to test the corresponding plug-in. If mandatory tests passed, then you’ll be able to try the plug-in online and get a full unit test report.
+
+![WAP pluginTester](/imgs/RepoTester2.png)
+
+[This example can be tried online](https://wasabi.i3s.unice.fr/WebAudioPluginBank/testers/explorandtest.html)
+
+
+
 
