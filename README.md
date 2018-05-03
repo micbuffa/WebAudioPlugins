@@ -63,7 +63,7 @@ More detailed examples are available on the documentation pages of the WAP propo
 
 ![WAP pluginWithGUI](/imgs/PluginWithGUI.png)
 
-[This example can be tried online at JsBin](https://jsbin.com/fidevim/edit?html,js,console,output)
+[This example can be tried online at JsBin](https://jsbin.com/jeretab/edit?js,output)
 
 
 ```javascript
@@ -73,7 +73,7 @@ More detailed examples are available on the documentation pages of the WAP propo
   var intermediateGain = ctx.createGain();
 
   var pluginURL = "https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay3";
-  var plugin = new WAPlugin.WasabiPingPongDelay(ctx, pluginURL);
+  var plugin = new WasabiPingPongDelay(ctx, pluginURL);
 
   plugin.load().then((node)=>{
     console.log("node",node);
