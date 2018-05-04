@@ -40,6 +40,23 @@ Along with the online documentation, we propose simple examples/tutorials both f
 
 [This example can be tried online at JsBin](https://jsbin.com/xevahu/edit?html,js,console,output)
 
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+  <script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/sdk/WebAudioSDK.js"></script>
+  <script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay3/main.js"></script>
+
+</head>
+<body>
+  <audio src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/BasketCaseGreendayriffDI.mp3" 
+         id="soundSample" controls loop crossorigin></audio>
+</body>
+</html>
+```\
 ```javascript
  var ctx = new AudioContext();
  var player = document.getElementById("soundSample");
