@@ -56,7 +56,7 @@ Along with the online documentation, we propose simple examples/tutorials both f
          id="soundSample" controls loop crossorigin></audio>
 </body>
 </html>
-```\
+```
 ```javascript
  var ctx = new AudioContext();
  var player = document.getElementById("soundSample");
