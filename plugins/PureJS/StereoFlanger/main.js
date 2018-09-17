@@ -2,52 +2,16 @@ window.StereoFlanger = class StereoFlanger extends WebAudioPluginCompositeNode {
 	constructor(ctx,URL ,options) {
 		super(ctx,URL, options)
 
-		this.state;
 
 		this.addParam({ name: 'feedback', defaultValue: 0.5, minValue: 0, maxValue: 1 });
 		this.addParam({ name: 'delay', defaultValue: 0.003, minValue: 0.001, maxValue: 0.02 });
 		this.addParam({ name: 'depth', defaultValue: 0.005, minValue: 0.0005, maxValue: 0.02 });
 		this.addParam({ name: 'frequency', defaultValue: 0.15, minValue: 0.05, maxValue: 2 });
+		Object.assign({ "status": "disable" }, this.params)
 
-		this.params =
-			{
-				"feedback": this._descriptor.feedback.defaultValue,
-				"delay": this._descriptor.delay.defaultValue,
-				"depth": this._descriptor.depth.defaultValue,
-				"frequency": this._descriptor.frequency.defaultValue,
-				"status": "disable"
-			}
-
-		this.setup();
+		super.setup();
 	}
 
-	get numberOfInputs() {
-		return this.inputs.length;
-	}
-
-	get numberOfOutputs() {
-		return this.outputs.length;
-	}
-	inputChannelCount() {
-		return 1;
-	}
-	outputChannelCount() {
-		return 1
-	}
-	getMetadata() {
-		return this.metadata;
-	}
-
-	getDescriptor() {
-		return this._descriptor;
-	}
-
-	getPatch(index) {
-		return null;
-	}
-	setPatch(data, index) {
-		console.warn("this module does not implements patches use getState / setState to get an array of current params values ");
-	}
 
 	setParam(key, value) {
 		console.log(key, value);
@@ -59,14 +23,6 @@ window.StereoFlanger = class StereoFlanger extends WebAudioPluginCompositeNode {
 		}
 	}
 
-
-	setup() {
-		this.createNodes();
-		this.connectNodes();
-		this.setInitialParamValues();
-		this.oscillator.start();
-
-	}
 
 	createNodes() {
 		/* @see : https://github.com/cwilso/Audio-Input-Effects/blob/master/js/effects.js */
@@ -111,15 +67,9 @@ window.StereoFlanger = class StereoFlanger extends WebAudioPluginCompositeNode {
 		this.merger.connect(this.wetGain);
 
 		this.wetGain.connect(this._output);
-	}
+		this.oscillator.start();
 
-	setInitialParamValues() {
-		this.feedback = this.params.feedback;
-		this.delay = this.params.delay;
-		this.depth = this.params.depth;
-		this.frequency = this.params.frequency;
 	}
-
 
 	set feedback(_feedback) {
 		if ((_feedback < this._descriptor.feedback.maxValue) && (_feedback > this._descriptor.feedback.minValue))
@@ -173,9 +123,9 @@ window.StereoFlanger = class StereoFlanger extends WebAudioPluginCompositeNode {
 //////////////////////////////////////////////////////////////////////////////////////////
 
 window.WasabiStereoFlanger = class WasabiStereoFlanger extends WebAudioPluginFactory {
-	constructor(context, baseUrl) { super(context, baseUrl); }
+	constructor(context, baseUrl, options) { super(context, baseUrl, options); }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-AudioContext.prototype.createWasabiDelayCompositeNode = OfflineAudioContext.prototype.createWasabiDelayCompositeNode = function (options) { return new StereoFlanger(this, options); };
+AudioContext.prototype.createWasabiDelayCompositeNode = OfflineAudioContext.prototype.createWasabiDelayCompositeNode = function (options) { return new StereoFlanger(this, baseUrl, options); };
