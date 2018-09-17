@@ -1,0 +1,9 @@
+{
+"name": "DeadGate",
+"vendor": "Faust",
+"version": "1.0",
+"homepage": "https://faust.grame.fr",
+"thumbnail": "./assets/deadgate.png",
+"category":"Gate"
+}
+

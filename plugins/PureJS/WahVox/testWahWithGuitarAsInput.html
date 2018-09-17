@@ -1,0 +1,81 @@
+<html>
+
+<head>
+	<title>Test Wah Effect</title>
+    <meta http-equiv="origin-trial" data-feature="AudioWorklet" data-expires="2018-03-06" content="AuqouVYOpuBqGUbQMwRTvnR9R5K1T0u5vw5KUqvZQSNox/gKa/dGig1VWcPYXUzuHN1OtTijH+lhVjg8has9RggAAABseyJvcmlnaW4iOiJodHRwczovL3dhc2FiaS5pM3MudW5pY2UuZnI6NDQzIiwiZmVhdHVyZSI6IkF1ZGlvV29ya2xldCIsImV4cGlyeSI6MTUyMDI5NDQwMCwiaXNTdWJkb21haW4iOnRydWV9">
+</head>
+
+<script src="../../../sdk/WebAudioSDK.js"></script>
+<script src="main.js"></script>
+
+<body>
+
+
+    <button id="toggleGuitarIn" onclick="toggleGuitarInput(event)">Guitar input:
+      <span style='color:red;'>NOT ACTIVATED</span>
+      , click to toggle on/off!
+    </button>
+ 
+        
+        </body>
+
+<script>
+	var ctx = new AudioContext();
+  var guitarPluggedIn = false;
+  var userMedia;
+  var splitter;
+  var merger;
+
+    
+    var constraints = {
+    audio: {
+      echoCancellation: false,
+      mozNoiseSuppression: false,
+      mozAutoGainControl: false,
+      //deviceId: id ? {exact: id} : undefined
+    }
+  };
+
+    // User input part 
+    navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+    window.stream = stream;
+    userMedia = ctx.createMediaStreamSource(stream);
+    
+  })
+
+  function toggleGuitarInput(event) {
+    var button = document.querySelector("#toggleGuitarIn");
+    button.disabled = true;
+
+    var pluginURL = "."; 
+	  var plugin = new WasabiWahVox(ctx, pluginURL);
+    
+    plugin.load().then((node) => 
+    {
+        console.log("node", node);
+        plugin.loadGui().then((elem) => 
+        {
+            console.log("elem", elem);
+            document.body.appendChild(elem);
+        });
+        
+        
+        if (!guitarPluggedIn) {
+          userMedia.connect(node);
+          node.connect(ctx.destination);
+          button.innerHTML = "Guitar input: <span style='color:green;'>ACTIVATED</span>!";
+        } else {
+          userMedia.disconnect(node);
+          node.disconnect(ctx.destination);
+          button.innerHTML = "Guitar input: <span style='color:red;'>NOT ACTIVATED</span>, click to enable!";
+        }
+  
+  guitarPluggedIn = !guitarPluggedIn;
+	  });
+    
+  }
+
+
+</script>
+
+</html>

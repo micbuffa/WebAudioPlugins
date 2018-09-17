@@ -1,0 +1,470 @@
+<script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webcomponents-lite.js"></script>
+<script>
+	WebAudioControlsOptions = {
+		useMidi: 1,
+	};
+</script>
+<script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webaudio-controls.js"></script>
+<template>
+	<style>
+		.pedal {
+			display: block;
+			background-color: #8A8A8A;
+			width: 300px;
+			height: 195px;
+			border-radius: 10px;
+			position: relative;
+			/* bring your own prefixes */
+			box-shadow: 4px 5px 6px rgba(0, 0, 0, 0.7),
+						inset -2px -2px 5px 0px rgba(0, 0, 0, 0.2),
+						inset 3px 1px 1px 4px rgba(255, 255, 255, 0.2),
+						1px 0px 1px 0px rgba(0, 0, 0, 0.9),
+						0 2px 1px 0 rgba(0, 0, 0, 0.9),
+						1px 1px 1px 0px rgba(0, 0, 0, 0.9);
+		}
+
+
+		#background-image {
+			width: 300px;
+			height: 195px;
+			opacity: 1;
+		}
+
+		.knob,
+		.switch,
+		.icon {
+			position: absolute;
+			cursor: pointer;
+		}
+
+		.presetChooser select{
+			background-color: #6B0000;
+			color: #FFFFFF;
+			width:45px;
+
+			
+		}
+		.presetChooser {
+			position: absolute;
+			cursor: pointer;
+			left: 200px;
+			top: 160px;
+
+		}
+
+		.selected {
+			border: 1px dashed black;
+			cursor: move;
+		}
+
+		.selected:hover {
+			border: 1px dashed black;
+			cursor: move;
+		}
+
+		.selected webaudio-knob {
+			cursor: move;
+		}
+
+		.selected webaudio-switch {
+			cursor: move;
+		}
+
+		.selected webaudio-slider {
+			cursor: move;
+		}
+
+		.selected:hover webaudio-knob {
+			cursor: move;
+		}
+
+		.selected:hover webaudio-switch {
+			cursor: move;
+		}
+
+		.selected:hover webaudio-slider {
+			cursor: move;
+		}
+
+
+		#switch1 {
+			bottom: 10px;
+			right: 0px;
+		}
+
+		#knob_893 {
+			left: 13px;
+			top: 5px;
+		}
+
+		#knob_893 div {
+			color: #FFFFFF;
+			font-family: "Tahoma";
+			font-size: 9px;
+
+		}
+
+		#knob_475 {
+			left: 98px;
+			top: 83px;
+		}
+
+		#knob_475 div {
+			color: #FFFFFF;
+			font-family: "Tahoma";
+			font-size: 9px;
+
+		}
+
+		#knob_590 {
+			left: 4px;
+			top: 83px;
+		}
+
+		#knob_590 div {
+			color: #FFFFFF;
+			font-family: "Tahoma";
+			font-size: 9px;
+
+		}
+
+		#knob_549 {
+			left: 69px;
+			top: 7px;
+		}
+
+		#knob_549 div {
+			color: #FFFFFF;
+			font-family: "Tahoma";
+			font-size: 9px;
+
+		}
+
+		#knob_710 {
+			left: 50px;
+			top: 82px;
+		}
+
+		#knob_710 div {
+			color: #FFFFFF;
+			font-family: "Tahoma";
+			font-size: 9px;
+
+		}
+
+		#knob_570 {
+			left: 146px;
+			top: 83px;
+		}
+
+		#knob_570 div {
+			color: #FFFFFF;
+			font-family: "Tahoma";
+			font-size: 9px;
+
+		}
+
+		#knob_134 {
+			left: 123px;
+			top: 7px;
+		}
+
+		#knob_134 div {
+			color: #FFFFFF;
+			font-family: "Tahoma";
+			font-size: 9px;
+
+		}
+
+		#knob_422 {
+			left: 181px;
+			top: 7px;
+		}
+
+		#knob_422 div {
+			color: #FFFFFF;
+			font-family: "Tahoma";
+			font-size: 9px;
+
+		}
+
+		#knob_545 {
+			left: 239px;
+			top: 6px;
+		}
+
+		#knob_545 div {
+			color: #FFFFFF;
+			font-family: "Tahoma";
+			font-size: 9px;
+
+		}
+
+		#knob_782 {
+			left: 198px;
+			top: 82px;
+		}
+
+		#knob_782 div {
+			color: #FFFFFF;
+			font-family: "Tahoma";
+			font-size: 9px;
+
+		}
+
+		#knob_947 {
+			left: 246px;
+			top: 83px;
+		}
+
+		#knob_947 div {
+			color: #FFFFFF;
+			font-family: "Tahoma";
+			font-size: 9px;
+
+		}
+
+		.labelDiv{
+			position: absolute;
+			top: 155px;
+			left:10px
+
+		}
+		.webaudioctrl-tooltip {
+			color: #600000 !important;
+			font-size: 11px !important;
+		}
+
+
+		.pedalLabel {
+			width: 100px;
+			font-size: 15px;
+			font-family: Sansita;
+			/*{font}*/
+			text-align: center;
+			line-height: 30px;
+			/*{pedalfontsize}*/
+			color: #6B0000;
+			/*{fontcolor}*/
+			border: #6B0000;
+			border-style: double;
+		}
+
+		.knob-label {
+			position: absolute;
+			font-size: 12px;
+			/*{knobfontsize}*/
+			line-height: 12px;
+			width: 64px;
+			max-width: 64px;
+			overflow: hidden;
+			text-align: center;
+			font-family: Sansita;
+			/*{font}*/
+			color: #6B0000;
+			/*{fontcolor}*/
+		}
+
+		#knob1-label {
+			top: 84px;
+			left: 43px;
+		}
+	</style>
+	<div class="pedal">
+	<img id="background-image" src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/Scream_Mask.png">
+
+		<div class=labelDiv>
+			<span class="pedalLabel">FAUST ZitaRev</span>
+		</div>
+		<div class="presetChooser">
+			<select id="presets">
+				<option value="aqua">Aqua</option>
+				<option value="init" selected>Init</option>
+			</select>
+		</div>
+
+		<div class="switchCont" id="switch1Cont">
+			<webaudio-switch src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay2Amine/img/switches/switch_1.png"
+			 class="switch" id="switch1" height="25" width="50"></webaudio-switch>
+		</div>
+
+		<div class="knob " id="knob_893">
+			<webaudio-knob src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay2Amine/img/knobs/Vintage_Knob.png"
+			 height="40" width="40" sprites="100" value="60" min="20" max="100" step="1" midilearn="1" tooltip="Delay Input %d" id="/zitaRev/Zita_Rev1/Input/In_Delay"></webaudio-knob>
+			<div id="knob-labelknob_893">In delay</div>
+		</div>
+		<div class="knob " id="knob_475">
+			<webaudio-knob src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay2Amine/img/knobs/Vintage_Knob.png"
+			 height="40" width="40" sprites="100" value="1500" min="160" max="10000" step="1" midilearn="1" tooltip="Equalizer 2 frequency target %d" id="/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_2/Eq2_Freq"></webaudio-knob>
+			<div id="knob-labelknob_475">Eq2 Freq</div>
+		</div>
+		<div class="knob " id="knob_590">
+			<webaudio-knob src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay2Amine/img/knobs/Vintage_Knob.png"
+			 height="40" width="40" sprites="100" value="315" min="40" max="2500" step="1" midilearn="1" tooltip="Equalizer 1 frequency target %d" id="/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_1/Eq1_Freq"></webaudio-knob>
+			<div id="knob-labelknob_590">EQ1 Freq</div>
+		</div>
+		<div class="knob " id="knob_549">
+			<webaudio-knob src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay2Amine/img/knobs/Vintage_Knob.png"
+			 height="40" width="40" sprites="100" value="200" min="50" max="1000" step="1" midilearn="1" tooltip="Crossover frequency (Hz) separating low and middle frequencies %d" id="/zitaRev/Zita_Rev1/Decay_Times_in_Bands_(see_tooltips)/LF_X"></webaudio-knob>
+			<div id="knob-labelknob_549">LF X</div>
+		</div>
+		<div class="knob " id="knob_710">
+			<webaudio-knob src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay2Amine/img/knobs/Vintage_Knob.png"
+			 height="40" width="40" sprites="100" value="0" min="-15" max="15" step="0.1" midilearn="1" tooltip="Equalizer 1 level %.1f" id="/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_1/Eq1_Level"></webaudio-knob>
+			<div id="knob-labelknob_710">EQ1 Lvl</div>
+		</div>
+		<div class="knob " id="knob_570">
+			<webaudio-knob src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay2Amine/img/knobs/Vintage_Knob.png"
+			 height="40" width="40" sprites="100" value="0" min="-15" max="15" step="0.1" midilearn="1" tooltip="Equalizer 2 level %.1f" id="/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_2/Eq2_Level"></webaudio-knob>
+			<div id="knob-labelknob_570">Eq2 Lvl</div>
+		</div>
+		<div class="knob " id="knob_134">
+			<webaudio-knob src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay2Amine/img/knobs/Vintage_Knob.png"
+			 height="40" width="40" sprites="100" value="3" min="1" max="8" step="0.1" midilearn="1" tooltip="T60 = time (in seconds) to decay 60dB in low-frequency band %.1f" id="/zitaRev/Zita_Rev1/Decay_Times_in_Bands_(see_tooltips)/Low_RT60"></webaudio-knob>
+			<div id="knob-labelknob_134">Low RT60</div>
+		</div>
+		<div class="knob " id="knob_422">
+			<webaudio-knob src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay2Amine/img/knobs/Vintage_Knob.png"
+			 height="40" width="40" sprites="100" value="2" min="1" max="8" step="0.1" midilearn="1" tooltip="T60 = time (in seconds) to decay 60dB in middle band %.1f" id="/zitaRev/Zita_Rev1/Decay_Times_in_Bands_(see_tooltips)/Mid_RT60"></webaudio-knob>
+			<div id="knob-labelknob_422">Mid RT60</div>
+		</div>
+		<div class="knob " id="knob_545">
+			<webaudio-knob src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay2Amine/img/knobs/Vintage_Knob.png"
+			 height="40" width="40" sprites="100" value="6000" min="1500" max="23520" midilearn="1" step="1" tooltip="Frequency (Hz) at which the high-frequency T60 is half the middle-band's T60" id="/zitaRev/Zita_Rev1/Decay_Times_in_Bands_(see_tooltips)/HF_Damping"></webaudio-knob>
+			<div id="knob-labelknob_545">HF Damp</div>
+		</div>
+		<div class="knob " id="knob_782">
+			<webaudio-knob src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay2Amine/img/knobs/Vintage_Knob.png"
+			 height="40" width="40" sprites="100" value="0" min="-1" max="1" step="0.01" midilearn="1" id="/zitaRev/Zita_Rev1/Output/Dry/Wet_Mix"></webaudio-knob>
+			<div id="knob-labelknob_782">Wet Mix</div>
+		</div>
+		<div class="knob " id="knob_947">
+			<webaudio-knob src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay2Amine/img/knobs/Vintage_Knob.png"
+			 height="40" width="40" sprites="100" value="10" min="-70" max="40" step="0.1" midilearn="1" id="/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_2/Eq2_Level"></webaudio-knob>
+			<div id="knob-labelknob_947">Level</div>
+		</div>
+	</div>
+</template>
+<script>
+	let zitaTemp = document.currentScript.ownerDocument.querySelector('template');
+	class ZitaRevGui2 extends HTMLElement {
+		get is() { return 'faust-zitarev2'; }
+
+
+		constructor(plug) {
+
+			super();
+			this._plug = plug;
+			this._plug.gui = this;
+			this._root = this.attachShadow({ mode: 'open' });
+			this._root.appendChild(zitaTemp.content.cloneNode(true));
+			this.isOn = false;
+			this.state = new Object();
+			this.knobs = [];
+			this.setKnobs();
+			this.setSwitchListener();
+			this._plug.setPatch("init");
+			this.bypass();
+			this.avoidDrag();
+		}
+
+		get properties() {
+
+			this.boundingRect = {
+				dataWidth: {
+					type: Number,
+					value: 300
+				},
+				dataHeight: {
+					type: Number,
+					value: 195
+				}
+			};
+			return this.boundingRect;
+
+		}
+
+		static get observedAttributes() {
+			return ['state'];
+		}
+
+
+		attributeChangedCallback() {
+			console.log(`Custom element ${this.is} attributes changed.`);
+      this.state = JSON.parse(this.getAttribute('state'));
+			let tmp  = "/zitaRev/bypass";
+			console.log(this._root.querySelector("#switch1Cont").querySelector("#switch1").value);
+      if (this.state[tmp] == 1) {
+        this._root.querySelector("#switch1Cont").querySelector("#switch1").value = 0;
+        this.isOn = false;
+      }else if(this.state[tmp] == 0){
+        this._root.querySelector("#switch1Cont").querySelector("#switch1").value = 1;
+        this.isOn = true;
+      }
+			this.knobs = this._root.querySelectorAll(".knob");
+			try {
+				for (var i = 0; i < this.knobs.length; i++) {
+        this.knobs[i].querySelector("webaudio-knob").setValue(this.state[this.knobs[i].querySelector("webaudio-knob").id],false);
+      }
+			} catch (error) {
+				console.warn("GUI not initiated");
+			}
+      
+    }
+
+
+
+		setKnobs() {
+			 this._root.querySelector("#presets").addEventListener('change', (e) => this._plug.setPatch(this._root.querySelector("#presets").value));
+			this._root.querySelector("#knob_893").querySelector("webaudio-knob").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/Input/In_Delay", e.target.value));
+			this._root.querySelector("#knob_549").querySelector("webaudio-knob").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/Decay_Times_in_Bands_(see_tooltips)/LF_X", e.target.value));
+			this._root.querySelector("#knob_134").querySelector("webaudio-knob").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/Decay_Times_in_Bands_(see_tooltips)/Low_RT60", e.target.value));
+			this._root.querySelector("#knob_422").querySelector("webaudio-knob").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/Decay_Times_in_Bands_(see_tooltips)/Mid_RT60", e.target.value));
+			this._root.querySelector("#knob_545").querySelector("webaudio-knob").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/Decay_Times_in_Bands_(see_tooltips)/HF_Damping", e.target.value));
+			this._root.querySelector("#knob_590").querySelector("webaudio-knob").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_1/Eq1_Freq", e.target.value));
+			this._root.querySelector("#knob_710").querySelector("webaudio-knob").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_1/Eq1_Level", e.target.value));
+			this._root.querySelector("#knob_475").querySelector("webaudio-knob").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_2/Eq2_Freq", e.target.value));
+			this._root.querySelector("#knob_570").querySelector("webaudio-knob").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_2/Eq2_Level", e.target.value));
+			this._root.querySelector("#knob_782").querySelector("webaudio-knob").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/Output/Dry/Wet_Mix", e.target.value));
+			this._root.querySelector("#knob_947").querySelector("webaudio-knob").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/Output/Level", e.target.value));
+
+		}
+
+
+		bypass() {
+			this._plug.setParam("/zitaRev/bypass", 1);
+
+		}
+
+		reactivate() {
+			this._plug.setParam("/zitaRev/bypass", 0);
+		}
+
+		setSwitchListener() {
+
+			// console.log("setswitch");
+			this._root.querySelector("#switch1Cont").querySelector("webaudio-switch").addEventListener('change', (e) => {
+				if (this.isOn) this.bypass()
+				else this.reactivate();
+				this.isOn = !this.isOn;
+			});
+
+		}
+
+		avoidDrag(){
+			this._root.querySelector("#background-image").draggable=false;
+		}
+
+	}
+	try {
+		customElements.define('faust-zitarev2', ZitaRevGui2);
+	//	console.log("Element defined");
+	} catch (error) {
+		console.log(error);
+		console.log("Element already defined");
+	}
+	const createFaustZitaRevGUI2 = (plug) => {
+		let elem = new ZitaRevGui2(plug);
+		return elem;
+	}
+</script>

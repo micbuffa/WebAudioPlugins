@@ -1,0 +1,257 @@
+<script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webcomponents-lite.js"></script>
+<script>
+    WebAudioControlsOptions = {
+        useMidi: 1,
+    };
+</script>
+<style>
+	@font-face {
+		font-family: 'clock';
+		src: url('./assets/clock.ttf') format('truetype');
+		font-weight: normal;
+		font-style: normal;
+
+	}
+</style>
+<script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webaudio-controls.js"></script>
+<template id="wc-tuner">
+    <style>
+        :host {
+            background: linear-gradient( rgb(48, 47, 47), rgb(0, 0, 0));
+            box-shadow: 4px 5px 6px rgba(0, 0, 0, 0.7), inset -2px -2px 5px 0px rgba(0, 0, 0, 0.2), inset 3px 1px 1px 4px rgba(255, 255, 255, 0.2), 1px 0px 1px 0px rgba(0, 0, 0, 0.9), 0 2px 1px 0 rgba(0, 0, 0, 0.9), 1px 1px 1px 0px rgba(0, 0, 0, 0.9);
+            font: 'clock';
+
+            width: 150px;
+            height: 190px;
+            display: block;
+            user-select: none;
+            cursor: move;
+            z-index: 9;
+
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        .pedalLabel,
+        .div_buttons {
+            border-radius: 8px;
+        }
+
+        .div_menuPanel {
+            /* border-top-left-radius: 8px;
+        border-top-right-radius: 8px; */
+        }
+
+        webaudio-switch {
+            left: -6px;
+
+        }
+
+        .pedalLabel {
+            /* background: rgba(0, 0, 0, 0.4); */
+            box-shadow: inset 0px 1px 5px #111;
+            border: 1px solid #ccc;
+            color: rgb(204, 204, 204);
+            padding: 4px 10px;
+
+            font-size: 10px;
+            text-align: center;
+            user-select: none;
+            font-family: helvetica;
+            text-transform: uppercase;
+            margin-top: 20px;
+        }
+
+        .knob-label {
+            color: rgb(255, 255, 255);
+            text-shadow: 0px 1px 1px #000;
+
+            font-size: 9px;
+            margin-top: -2px;
+
+            text-align: center;
+            text-transform: uppercase;
+            overflow: hidden;
+            user-select: none;
+            font-family: helvetica;
+            margin-top: 5px;
+
+        }
+
+        .elements {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+
+            padding: 10px;
+
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            flex: 1;
+            margin: 3px;
+            border-radius: 5px;
+        }
+
+        .column2 {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            flex: 1;
+            margin: 3px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        .row {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: stretch;
+
+        }
+
+        #note {
+            display: inline-block;
+            height: 30px;
+            text-align: left;
+        }
+
+        #detector {
+            width: 110px;
+            height: 90px;
+            border: 1.5px solid rgb(35, 53, 49);
+            border-radius: 10px;
+            text-align: center;
+            color: black;
+            background-color: rgb(124, 158, 146);
+            padding-top: 3.3px;
+            margin: auto;
+            font-family: 'clock';
+            margin-top: 10px;
+        }
+
+        #output {
+            width: 100px;
+            height: 14px;
+        }
+
+        #flat {
+            display: none;
+        }
+
+        #sharp {
+            display: none;
+        }
+
+        .flat #flat {
+            display: inline;
+        }
+
+        .sharp #sharp {
+            display: inline;
+        }
+    </style>
+    <div class="column">
+        <div id="detector" class="vague">
+            <div class="pitch">
+                <span id="pitch">--</span>Hz</div>
+            <div class="note">
+                <span id="note">--</span>
+            </div>
+            <canvas id="output" width=300 height=42></canvas>
+            <div id="detune">
+                <span id="detune_amt">--</span>
+                <span id="flat">CENTS &#9837;</span>
+                <span id="sharp">CENTS &#9839;</span>
+            </div>
+       
+    </div>
+    <div class="column2">
+        <webaudio-switch id="switch1" class="switch" midilearn="true" src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/switch_1.png"
+            width="32" height="20"></webaudio-switch>
+        <span class="pedalLabel">Tuner</span>
+    </div>
+    </div>
+      
+</template>
+<script>
+    let tunertemp = document.currentScript.ownerDocument.querySelector("#wc-tuner");
+    class TunerGUI extends HTMLElement {
+
+        constructor(plug) {
+            super();
+            this._plug = plug;
+            this._plug.gui = this;
+            this._root = this.attachShadow({ mode: 'open' });
+            this._root.appendChild(tunertemp.content.cloneNode(true));
+            this.state = new Object();
+            this.isOn;
+            this.setSwitchListener();
+        }
+
+        get properties() {
+            this.boundingRect = {
+                dataWidth: {
+                    type: Number,
+                    value: 150
+                },
+                dataHeight: {
+                    type: Number,
+                    value: 190
+                }
+            };
+            return this.boundingRect;
+        }
+
+        static get observedAttributes() { return ['state']; }
+
+        attributeChangedCallback() {
+            this.state = JSON.parse(this.getAttribute('state'));
+            console.log(this.state);
+            if (this.state.status == "enable") {
+                this._root.querySelector("#switch1").value = 1;
+                this.isOn = true;
+            }
+        }
+
+        setSwitchListener() {
+            console.log("setswitch");
+            this._root.querySelector("#switch1").addEventListener('change', (e) => {
+                if (this.isOn) this.bypass();
+                else this.reactivate();
+                this.isOn = !this.isOn;
+            });
+        }
+
+        bypass() {
+            this._plug.setParam("status", "disable");
+        }
+        reactivate() {
+            this._plug.setParam("status", "enable");
+        }
+
+
+
+    }
+
+    // Register the x-custom element with the browser
+    try {
+        console.log("Element defined");
+        customElements.define('wasabi-tuner', TunerGUI);
+    } catch (error) {
+        console.log(error);
+        console.log("Element already defined");
+    }
+
+    createTunerMachine = (plug) => {
+        let elem = new TunerGUI(plug);
+        return elem;
+    }
+</script>

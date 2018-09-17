@@ -1,0 +1,313 @@
+<script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webcomponents-lite.js"></script>
+<script>
+  WebAudioControlsOptions = {
+    useMidi: 1,
+  };
+</script>
+<script src="./../../bower_components/webaudio-controls2/webaudio-controls.js"></script>
+<template id="faust-zitarev2">
+  <style>
+    :host {
+      background: linear-gradient( rgb(77, 74, 78), rgb(67, 48, 219038));
+      box-shadow: 4px 5px 6px rgba(0, 0, 0, 0.7), inset -2px -2px 5px 0px rgba(0, 0, 0, 0.2), inset 3px 1px 1px 4px rgba(255, 255, 255, 0.2), 1px 0px 1px 0px rgba(0, 0, 0, 0.9), 0 2px 1px 0 rgba(0, 0, 0, 0.9), 1px 1px 1px 0px rgba(0, 0, 0, 0.9);
+      width: 300px;
+      height: 190px;
+      display: block;
+      user-select: none;
+      cursor: move;
+      z-index: 9;
+      padding-top: 5px;
+    }
+
+    :host {
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+
+     #presets{
+      background: rgb(77, 74, 78);
+      color: aliceblue;
+      margin-left: 5px;
+    }
+
+    .pedalLabel,
+    .div_buttons {
+      border-radius: 8px;
+    }
+
+    .div_menuPanel {
+      /* border-top-left-radius: 8px;
+        border-top-right-radius: 8px; */
+    }
+
+    .laPedale {
+      /* box-shadow: inset 0px 3px 10px #111; */
+    }
+
+    webaudio-switch {
+      left: -6px;
+    }
+
+    .pedalLabel {
+      /* background: rgba(0, 0, 0, 0.4); */
+      box-shadow: inset 0px 1px 5px #111;
+      border: 1px solid #ccc;
+      color: #ccc;
+      /* border:2px solid #aaa; */
+      padding: 4px 10px;
+      margin: 2px 0px;
+
+      font-size: 10px;
+      text-align: center;
+      user-select: none;
+      /* font-family: Lemon\/Milk; */
+      font-family: helvetica;
+      text-transform: uppercase;
+    }
+
+    .knob-label {
+      color: #ddd;
+      text-shadow: 0px 1px 1px #000;
+
+      font-size: 6px;
+      margin-top: -2px;
+
+      text-align: center;
+      text-transform: uppercase;
+      overflow: hidden;
+      user-select: none;
+      font-family: helvetica;
+
+    }
+
+    .elements {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+
+      padding: 10px;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+
+      flex: 1;
+      margin: 3px;
+    }
+
+    .row {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: stretch;
+    }
+    *:focus {
+      outline: 0;
+    }
+
+   
+  </style>
+  <div class="row">
+    <select id ="presets">
+      <option value="aqua">Aqua</option>
+      <option value="init" selected>Init</option>
+    </select>
+  </div>
+  <div class="row">
+    <div class="column">
+      <webaudio-knob id="knob1" class="knob" sprites="99" value="60" min="20" max="100" step="1" midilearn="true" width="40" height="40"
+        src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/nux_black_white_stripe.png" data-role="in_Delay"></webaudio-knob>
+      <span class="knob-label" id="knob1-label">in_Delay</span>
+    </div>
+    <div class="column">
+      <webaudio-knob id="knob2" class="knob" sprites="99" value="200" min="50" max="1000" step="1" midilearn="true" width="40"
+        height="40" src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/nux_black_white_stripe.png" data-role="LF_X"></webaudio-knob>
+      <span class="knob-label" id="knob2-label">LF_X</span>
+    </div>
+    <div class="column">
+      <webaudio-knob id="knob3" class="knob" sprites="99" value="3" min="1" max="8" step="0.1" midilearn="true" width="40" height="40"
+        src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/nux_black_white_stripe.png" data-role="Low_RT60"></webaudio-knob>
+      <span class="knob-label" id="knob3-label">Low_RT60</span>
+    </div>
+    <div class="column">
+      <webaudio-knob id="knob4" class="knob" sprites="99" value="2" min="1" max="8" step="0.1" midilearn="true" width="40" height="40"
+        src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/nux_black_white_stripe.png" data-role="Mid_RT60"></webaudio-knob>
+      <span class="knob-label" id="knob4-label">Mid_RT60</span>
+    </div>
+    <div class="column">
+      <webaudio-knob id="knob5" class="knob" sprites="99" value="6000" min="1500" max="23520" step="1" midilearn="true" width="40"
+        height="40" src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/nux_black_white_stripe.png" data-role="HF_Damping"></webaudio-knob>
+      <span class="knob-label" id="knob5-label">HF_Damping</span>
+    </div>
+  </div>
+  <div class="row">
+    <div class="column">
+      <webaudio-knob id="knob6" class="knob" sprites="99" value="315" min="40" max="2500" step="1" midilearn="true" width="40"
+        height="40" src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/nux_black_white_stripe.png" data-role="Eq1_Freq"></webaudio-knob>
+      <span class="knob-label" id="knob6-label">Eq1_Freq</span>
+    </div>
+    <div class="column">
+      <webaudio-knob id="knob7" class="knob" sprites="99" value="0" min="-15" max="15" step="0.1" midilearn="true" width="40" height="40"
+        src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/nux_black_white_stripe.png" data-role="Eq1_Level"></webaudio-knob>
+      <span class="knob-label" id="knob7-label">Eq1_Level</span>
+    </div>
+    <div class="column">
+      <webaudio-knob id="knob8" class="knob" sprites="99" value="1500" min="160" max="10000" step="1" midilearn="true" width="40"
+        height="40" src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/nux_black_white_stripe.png" data-role="Eq2_Freq"></webaudio-knob>
+      <span class="knob-label" id="knob8-label">Eq2_Freq</span>
+    </div>
+    <div class="column">
+      <webaudio-knob id="knob9" class="knob" sprites="99" value="0" min="-15" max="15" step="0.1" midilearn="true" width="40" height="40"
+        src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/nux_black_white_stripe.png" data-role="Eq2_Level"></webaudio-knob>
+      <span class="knob-label" id="knob9-label">Eq2_Level</span>
+    </div>
+    <div class="column">
+      <webaudio-knob id="knob10" class="knob" sprites="99" value="0" min="-1" max="1" step="0.01" midilearn="true" width="40" height="40"
+        src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/nux_black_white_stripe.png" data-role="Wet_Mix"></webaudio-knob>
+      <span class="knob-label" id="knob10-label">Wet_Mix</span>
+    </div>
+    <div class="column">
+      <webaudio-knob id="knob11" class="knob" sprites="99" value="10" min="-70" max="40" step="0.1" midilearn="true" width="40"
+        height="40" src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/nux_black_white_stripe.png" data-role="Level"></webaudio-knob>
+      <span class="knob-label" id="knob11-label">Level</span>
+    </div>
+  </div>
+  <div class="row">
+    <div class="column">
+      <webaudio-switch midilearn="true" src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/switch_1.png" class="switch" id="switch1"
+        width="40" height="25"></webaudio-switch>
+    </div>
+  </div>
+  <div class="row">
+    <div class="column">
+      <span class="pedalLabel">FAUST ZitaRev</span>
+    </div>
+  </div>
+</template>
+<script>
+  let zitaRevTemp2 = document.currentScript.ownerDocument.querySelector("#faust-zitarev2");
+
+  // Ecapsulate the WebComponent class into a function, like this we can pass
+  // a parameter to its constructor (the audio node/audio processor)
+
+  class ZitaRevGui2 extends HTMLElement {
+    get is() { return 'faust-zitarev2'; }
+
+
+    // This is the trick : copy function's argument to the constructor param
+    // See http://jsbin.com/zeninem/edit?html,js,console as a simple example
+    // of this technique
+    constructor(plug) {
+      super();
+      this._plug = plug; // store for later use
+      this._plug.gui = this;
+      this._root = this.attachShadow({ mode: 'open' });
+      this._root.appendChild(zitaRevTemp2.content.cloneNode(true));
+      this.isOn;
+      this.setKnobs();
+      this.setActive(false);
+      this.setSwitchListener();
+      this.presets = [];
+    }
+
+    get properties() {
+      this.boundingRect = {
+        dataWidth: {
+          type: Number,
+          value: 300
+        },
+        dataHeight: {
+          type: Number,
+          value: 190
+        }
+      };
+      return this.boundingRect;
+    }
+
+
+    static get observedAttributes() { return ['presets']; }
+
+    attributeChangedCallback() {
+      console.log(`Custom element ${this.is} attributes changed.`);
+      this.presets = JSON.parse(this.getAttribute('presets'));
+      this.knobs = this._root.querySelectorAll(".knob");
+      for (var i = 0; i<this.knobs.length;i++){
+        this.knobs[i].value = this.presets[i];
+      }
+    }
+
+
+
+    setKnobs() {
+      this._root.querySelector("#presets").addEventListener('change',(e) => this._plug.setPatch(this._root.querySelector("#presets").value));
+      this._root.querySelector("#knob1").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/Input/In_Delay", e.target.value), false);
+      this._root.querySelector("#knob2").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/Decay_Times_in_Bands_(see_tooltips)/LF_X", e.target.value));
+      this._root.querySelector("#knob3").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/Decay_Times_in_Bands_(see_tooltips)/Low_RT60", e.target.value));
+      this._root.querySelector("#knob4").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/Decay_Times_in_Bands_(see_tooltips)/Mid_RT60", e.target.value));
+      this._root.querySelector("#knob5").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/Decay_Times_in_Bands_(see_tooltips)/HF_Damping", e.target.value));
+      this._root.querySelector("#knob6").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_1/Eq1_Freq", e.target.value));
+      this._root.querySelector("#knob7").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_1/Eq1_Level", e.target.value));
+      this._root.querySelector("#knob8").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_2/Eq2_Freq", e.target.value));
+      this._root.querySelector("#knob9").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_2/Eq2_Level", e.target.value));
+      this._root.querySelector("#knob10").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/Output/Dry/Wet_Mix", e.target.value));
+      this._root.querySelector("#knob11").addEventListener('input', (e) => this._plug.setParam("/zitaRev/Zita_Rev1/Output/Level", e.target.value), false);
+    }
+
+
+    setActive(active) {
+      if (active == undefined || active == false) {
+        this.isOn = false;
+        this.bypass();
+        this._root.querySelector("#switch1").value = 0;
+      } else if (active) {
+        this.isOn = true;
+        this.reactivate();
+        this._root.querySelector("#switch1").value = 1;
+      }
+    }
+
+    setSwitchListener() {
+      console.log("setswitch");
+      this._root.querySelector("#switch1").addEventListener('change', (e) => {
+        if (this.isOn) this.bypass()
+        else this.reactivate();
+        this.isOn = !this.isOn;
+      });
+    }
+
+    bypass() {
+      this._plug.setParam("/zitaRev/bypass", 1);
+      console.log("disabled");
+    }
+
+    reactivate() {
+      this._plug.setParam("/zitaRev/bypass", 0);
+
+    }
+
+
+  }
+  // Register the x-custom element with the browser
+  // we use a try catch here as if multiple instances of this GUI
+  // are created we must define the custom element only ONCE
+
+  try {
+    customElements.define('faust-zitarev2', ZitaRevGui2);
+    console.log("Element defined");
+  } catch (error) {
+    console.log(error);
+    console.log("Element already defined");
+  }
+
+
+  const createFaustZitaRevGUI2 = (plug) => {
+    let elem = new ZitaRevGui2(plug);
+    return elem;
+  }
+
+
+</script>

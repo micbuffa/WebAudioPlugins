@@ -1,0 +1,8 @@
+  {
+    "documentation": "...",
+    "name": "PingPongDelay",
+    "thumbnail": "WasabiPingPongDelay.png",
+    "vendor": "Wasabi",
+    "category":"Delay",
+    "version": "1.0"
+  }

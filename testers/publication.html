@@ -1,0 +1,325 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta http-equiv="origin-trial" data-feature="AudioWorklet" data-expires="2018-03-06" content="AuqouVYOpuBqGUbQMwRTvnR9R5K1T0u5vw5KUqvZQSNox/gKa/dGig1VWcPYXUzuHN1OtTijH+lhVjg8has9RggAAABseyJvcmlnaW4iOiJodHRwczovL3dhc2FiaS5pM3MudW5pY2UuZnI6NDQzIiwiZmVhdHVyZSI6IkF1ZGlvV29ya2xldCIsImV4cGlyeSI6MTUyMDI5NDQwMCwiaXNTdWJkb21haW4iOnRydWV9">
+  <link rel="stylesheet" href="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/mocha/mocha.css">
+  <script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/sdk/WebAudioSDK.js"></script>
+
+  <style>
+    #WAP {
+      float: left;
+      width: 50%;
+      padding-top: 5%;
+      padding-left: 15%;
+
+
+    }
+
+    #mocha {
+      float: right;
+      width: 50%;
+      height: 400px;
+      overflow: scroll;
+      padding: 0%;
+    }
+
+    #onetest {
+      display: flex;
+
+    }
+
+    #inputs {
+      display: grid;
+    }
+
+    #urlPlugin {
+      width: 300px;
+    }
+
+    #main {
+      float: left;
+      width: 50%
+    }
+
+    #layout {
+      display: flex;
+    }
+
+    #helper {
+      float: left;
+      border: 3px;
+      border-style: solid;
+      padding: 10px;
+      width: 50%
+    }
+  </style>
+
+  <title>Plugin tester</title>
+</head>
+
+<body>
+  <div class="title">
+    <h1>Plugin Tester</h1>
+  </div>
+  <div id="layout">
+    <div class="content" id="main">
+      <audio src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/BasketCaseGreendayriffDI.mp3" id="soundSample" controls loop crossorigin></audio>
+
+    </div>
+  </div>
+  <div id="results"></div>
+  <div id="onetest">
+    <div id="WAP"></div>
+    <div id="mocha"></div>
+  </div>
+  <script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/mocha/mocha.js"></script>
+  <script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/node_modules/chai/chai.js"></script>
+  <script>mocha.setup('bdd')</script>
+</body>
+
+<script>
+
+  var checkbox = document.querySelector('#checkBox')
+  var AudioContext = window.AudioContext || window.webkitAudioContext;
+  var ctx = new AudioContext();
+  var player = document.getElementById("soundSample");
+  var mediaSource = ctx.createMediaElementSource(player);
+  var bt_buildIt = document.querySelector('#bt_buildIt');
+  var buildpass = false;
+  var pluginURL;
+  var pedalName;
+  var resultHTML = document.querySelector('#results')
+
+  window.onload = () => {
+
+    (function getPedalNameFromURL() {
+      let baseURLPedal = "https://mike-aubenas.fr:5001/pedals/node_modules/";
+      let currentURL = new URL(window.location.href);
+      pedalName = currentURL.searchParams.get('pedal');
+
+      pluginURL = `${baseURLPedal}${pedalName}`;
+    })()
+
+    checkMetadata(pluginURL);
+
+    player.onplay = () => {
+      ctx.resume().then(() => {
+        console.log('Playback resumed successfully');
+      });
+    }
+  }
+
+  function checkMetadata(baseURL) {
+    fetch(baseURL + "/main.json").then(responseJSON => {
+      return responseJSON.json();
+    }).then(metadata => {
+      let className = metadata.vendor + metadata.name;
+      loadPlugin(className, baseURL);
+    }).catch((e) => {
+      console.log(e);
+    });
+  }
+
+
+  function scriptExists(url) {
+    return document.querySelectorAll(`script[src="${url}"]`).length > 0;
+  }
+
+
+  // add the script tag and load the plugin
+  function loadPlugin(className, baseURL) {
+    let scriptURL = baseURL + "/main.js";
+
+    if (scriptExists(scriptURL)) {
+      //script exists
+      console.log("SCRIPT EXISTS WE JUST INSTANCIATE THE PLUGIN");
+      buildPlugin(className, baseURL);
+      return;
+    }
+
+    console.log("SCRIPT DOES NOT EXIST, ADD A SCRIPT SRC=, THEN INSTANCIATE PLUGIN")
+
+    // if we are here this means that the script is not present. Add it to the document
+    let script = document.createElement("script");
+    script.src = scriptURL;
+
+    script.onload = function () {
+      // Once the script has been loaded instanciate the plugin
+      buildPlugin(className, baseURL);
+    }
+
+    // will be executed before the onload above...
+    document.head.appendChild(script);
+  }
+
+  // instanciate the plugin
+  function buildPlugin(className, baseURL) {
+
+    var plugin = new window[className](ctx, baseURL);
+    console.log(plugin);
+
+    try {
+      plugin.load().then((node) => {
+        // loads and initialize the audio processor part
+        // Then use the factory to create the HTML custom elem that holds the GUI
+        // The loadGUI method takes care of inserting the link rel=import part,
+        // not doing it twice, and associate the node with its GUI.
+        plugin.loadGui().then((elem) => {
+          console.log("ADDING PLUGIN");
+          // show the GUI of the plugn, the audio part is ready to be used
+          document.querySelector("#WAP").appendChild(elem);
+          //mediaSource.connect(node);
+          //node.connect(ctx.destination);
+          // Add node to the chain of plugins
+        });
+        document.body.querySelector("#WAP").insertAdjacentHTML('afterbegin', '<h2>' + `${className}` + '</h2>')
+        try {
+          mediaSource.connect(node);
+        } catch (error) {
+          console.log("this plugin does not use audioworkletnode or compositenode");
+          mediaSource.connect(node.getInput(0));
+        }
+        // if (node instanceof AudioWorkletNode)
+        // else mediaSource.connect(node.getInput(0));
+        node.connect(ctx.destination);
+        buildpass = true;
+        testPlugin(node);
+
+      });
+
+    } catch (error) {
+
+      var testcontainer = document.querySelector("#WAP");
+
+      testcontainer.innerHTML += '<h3>Build Failed, WAP can not be published</h3>'
+
+    }
+  }
+
+
+  /*
+  here we use mocha chai.js to apply unit test on the plugin. The test cases cover the existence and (soon) the type of the API calls.
+  */
+  function testPlugin(param) {
+    var expect = chai.expect;
+    var assert = chai.assert;
+    let plugin = param;
+    let passes = false;
+    var testcontainer = document.querySelector("#WAP");
+
+    describe('Metadata', function () {
+      it('plugin should have a JSON getMetadata() method', function () {
+        expect(plugin.getMetadata()).to.exist;
+      });
+      it('the getMetadata() function should return a json object', function () {
+        plugin.getMetadata().then((res) => { expect(res).to.not.be.empty });
+      });
+    });
+
+
+    describe('Descriptor', function () {
+      it('plugin should have a JSON getDescriptor() method', function () {
+        expect(plugin.getDescriptor()).to.exist;
+      });
+      it('getDescriptor() function should return a json object', function () {
+        expect(plugin.getDescriptor()).to.not.be.empty;
+      });
+    });
+
+
+    describe('Param getter', function () {
+      it('plugin should have a getParam(key) method', function () {
+        expect(plugin).to.have.property("getParam")
+      });
+    });
+
+
+    describe('Param setter', function () {
+      it('plugin should have a setParam(key,value) method', function () {
+        expect(plugin).to.have.property("setParam");
+      });
+    });
+
+    describe('State getter', function () {
+      it('plugin should have a getState() method', function () {
+        expect(plugin).to.have.property("setPatch");
+      });
+    });
+
+
+    describe('State setter', function () {
+      it('plugin should have a setState(value) method', function () {
+        expect(plugin).to.have.property("setState");
+      });
+    });
+
+    describe('midi enable', function () {
+      it('plugin should have a onMidi(msg) method', function () {
+        expect(plugin).to.have.property("onMidi");
+      });
+    });
+
+    describe('Input Channel Number', function () {
+      it('plugin should have an inputChannelCount() method', function () {
+        expect(plugin.inputChannelCount()).to.exist;
+      });
+    });
+
+    describe('Number of inputs', function () {
+      it('plugin should have an numberOfInputs() method', function () {
+        expect(plugin.numberOfInputs).to.exist;
+
+      });
+    });
+    describe('Number of outputs', function () {
+      it('plugin should have an numberOfOutputs() method', function () {
+        expect(plugin.numberOfOutputs).to.exist;
+      });
+    });
+
+
+    var stats = mocha.run();
+    setTimeout(() => { results(stats.stats, resultHTML) }, 100);
+
+  }
+
+  function results(stats, resultHTML) {
+    console.log(stats.passes);
+    if (stats.failures > 0) passes = false; else passes = true;
+    if (passes == false) {
+      resultHTML.setAttribute("style","color:red")
+      resultHTML.innerHTML += '<p><h3>SDK not respected, not included or badly overrided, correct it and try again</h3><p>'
+      callToRemoveWAP();
+    } else {
+      resultHTML.setAttribute("style","color:green")
+      resultHTML.innerHTML += `<h3>WAP conform ! it's now published on ${pluginURL}</h3>`
+      callTokeepWAP();
+    }
+
+  }
+
+  function callToRemoveWAP() {
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState == XMLHttpRequest.DONE) {
+        if (xhr.status !== 200) { alert("Deletion aborted") }
+      };
+    }
+    xhr.open("DELETE", `https://mike-aubenas.fr:5001/api/pedal/${pedalName}`, true);
+    xhr.send();
+  }
+
+  function callTokeepWAP() {
+    //TODO
+  }
+
+
+
+
+</script>
+
+
+
+
+</html>

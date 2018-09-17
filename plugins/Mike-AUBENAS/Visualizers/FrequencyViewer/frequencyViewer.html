@@ -1,0 +1,211 @@
+<script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webcomponents-lite.js"></script>
+<script> WebAudioControlsOptions = { useMidi: 1 }; </script>
+<script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webaudio-controls.js"></script>
+
+<template id="wc-frequency-viewer">
+
+    <style>
+
+        /* :host
+        {
+			background: linear-gradient( rgb(77, 74, 78),rgb(25, 167, 60));
+			box-shadow: 4px 5px 6px rgba(0, 0, 0, 0.7),
+						inset -2px -2px 5px 0px rgba(0, 0, 0, 0.2),
+						inset 3px 1px 1px 4px rgba(255, 255, 255, 0.2),
+						1px 0px 1px 0px rgba(0, 0, 0, 0.9),
+						0 2px 1px 0 rgba(0, 0, 0, 0.9),
+						1px 1px 1px 0px rgba(0, 0, 0, 0.9);
+						width: 100px;
+
+			height: 230px;
+			width: 330px;
+			display: block;
+			user-select: none;
+			cursor: move;
+			z-index: 9;
+
+			border-top-left-radius: 8px;
+			border-top-right-radius: 8px;
+			border-bottom-left-radius: 8px;
+			border-bottom-right-radius: 8px;
+        } */
+
+		canvas
+		{
+			width: 80px;
+			height: 35px;
+		}
+
+		.column
+		{
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-start;
+			align-items: center;
+
+			flex: 1;
+		}
+
+		.row
+		{
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-start;
+			align-items: stretch;
+		}
+
+		
+	</style>
+
+	<div class="row">
+
+		<div class="column">
+
+			<canvas></canvas>
+
+		</div>
+
+	</div>
+
+</template>
+
+<script>
+
+	/* 	See :
+
+	 *	https://codepen.io/travisholliday/pen/gyaJk
+	 *	https://developer.mozilla.org/fr/docs/Web/API/AnalyserNode/fftSize
+	 *	https://fr.wikipedia.org/wiki/VU-m%C3%A8tre
+	 */
+
+	let freqMeter = document.currentScript.ownerDocument.querySelector("#wc-frequency-viewer");
+
+	class FrequencyViewer extends HTMLElement
+	{
+		constructor(audioContext, audioAnalyser)
+		{
+			super();
+			this.audioAnalyser = audioAnalyser;
+
+			if(audioContext)
+			{
+				this._root = this.attachShadow({ mode: 'open' });
+				this._root.appendChild(freqMeter.content.cloneNode(true));
+				this.isOn = true;
+				this.MINVAL = 69;
+				this.canvas = this._root.querySelector("canvas");
+				this.graphicContext = this.canvas.getContext("2d");
+
+				this.audioContext = audioContext;
+			//	this.audioAnalyser = this.audioContext.createAnalyser();
+				this.setUp();
+				this.draw();
+
+			//	this.connectNodes();
+				this.draw();
+			}
+		}
+
+		setUp()
+		{
+			this.audioAnalyser.fftSize = 2048;
+			this.datasArray = new Uint8Array(this.audioAnalyser.fftSize);
+			this.lourd = this.audioAnalyser.getByteTimeDomainData(this.datasArray);
+		}
+
+		
+
+		draw()
+		{
+			this.drawing = requestAnimationFrame( () => this.draw());
+			this.audioAnalyser.getByteTimeDomainData(this.datasArray);
+			var scaling = this.height/256;
+
+			this.graphicContext.fillStyle = 'rgb(0, 0, 0)';
+			this.graphicContext.fillRect(0, 0, this.canvas.width, this.canvas.height);
+			this.graphicContext.lineWidth = 4;
+			this.graphicContext.strokeStyle = 'rgb(0, 242, 255)';
+
+			this.graphicContext.beginPath();
+
+
+			let sliceWidth = this.canvas.width * 1.0 / this.audioAnalyser.fftSize;
+			let coordinateX = 0;
+			var zeroCross = this.findFirstPositiveZeroCrossing(this.datasArray,this.canvas.width);
+			
+
+			if (this.isOn)
+			{
+				for (let i = 0; i < this.audioAnalyser.fftSize; i++)
+				{
+					let value = this.datasArray[i] / 128.0;
+					let zervalue = this.datasArray[this.zeroCross] / 128.0;
+					let coordinateY = value * this.canvas.height / 2;
+					let zercoordinateY = zervalue * this.canvas.height / 2;
+
+					if (i === 0)
+						this.graphicContext.moveTo(coordinateX, zercoordinateY )
+					else
+						this.graphicContext.lineTo(coordinateX, coordinateY );
+
+					coordinateX += sliceWidth;
+				}
+
+				this.graphicContext.lineTo(this.canvas.width, this.canvas.height /2);
+				this.graphicContext.stroke();
+			}
+			else
+			{
+				window.cancelAnimationFrame(this.drawing);
+			}
+		}
+
+	findFirstPositiveZeroCrossing(buf, buflen) {
+  var i = 0;
+  var last_zero = -1;
+  var t;
+
+  // advance until we're zero or negative
+  while (i<buflen && (buf[i] > 64 ) )
+    i++;
+
+  if (i>=buflen)
+    return 0;
+
+  // advance until we're above MINVAL, keeping track of last zero.
+  while (i<buflen && ((t=buf[i]) < this.MINVAL )) {
+    if (t >= 64) {
+      if (last_zero == -1)
+        last_zero = i;
+    } else
+      last_zero = -1;
+    i++;
+  }
+
+  // we may have jumped over MINVAL in one sample.
+  if (last_zero == -1)
+    last_zero = i;
+
+  if (i==buflen)  // We didn't find any positive zero crossings
+    return 0;
+
+  // The first sample might be a zero.  If so, return it.
+  if (last_zero == 0)
+    return 0;
+
+  return last_zero;
+}
+	}
+
+	try
+	{
+		console.log("Element defined");
+		customElements.define('wasabi-frequency-viewer', FrequencyViewer);
+	}
+	catch (error)
+	{
+		console.log(error);
+		console.log("Element already defined");
+	}
+
+</script>

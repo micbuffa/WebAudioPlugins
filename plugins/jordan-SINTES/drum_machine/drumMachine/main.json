@@ -1,0 +1,8 @@
+{
+    "documentation": "TODO", 
+    "name": "DrumMachine",
+    "thumbnail": "WasabiDrumMachine.png",
+    "vendor": "Wasabi",
+    "category":"Percussion",
+    "version": "1.0"
+  }

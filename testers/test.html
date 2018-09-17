@@ -1,0 +1,310 @@
+<!-- Plugin dependencies 
+     The Delay depends on Polymer 2 because it uses the webaudiocontrols knobs, etc
+     that also depend on Polymer. If we remove this dependency, then the delay
+     would have zero dependencies on its own.
+
+     These should be located on a "shared" repo, or on CDNs
+
+    -->
+<!doctype html>
+<html>
+<head>
+  <meta http-equiv="origin-trial" data-feature="AudioWorklet" data-expires="2018-03-06" content="AuqouVYOpuBqGUbQMwRTvnR9R5K1T0u5vw5KUqvZQSNox/gKa/dGig1VWcPYXUzuHN1OtTijH+lhVjg8has9RggAAABseyJvcmlnaW4iOiJodHRwczovL3dhc2FiaS5pM3MudW5pY2UuZnI6NDQzIiwiZmVhdHVyZSI6IkF1ZGlvV29ya2xldCIsImV4cGlyeSI6MTUyMDI5NDQwMCwiaXNTdWJkb21haW4iOnRydWV9">
+  <link rel="stylesheet" href="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/mocha/mocha.css">
+  
+  <!-- Plugin in its redistribuable form, note that we use here an 
+     absolute URL, that means that YOU can use it too in YOUR html page/host -->
+  <!-- Here we have a VERY preliminary code that unit tests the API,
+     with hard coded names etc. -->
+  <!-- What follows is an example of html/js code that instanciates it :
+The wc-pingpongdelay html tag is the custom element defined in the 
+imported html file of the redistribuable plugin
+The instruction:
+let wcdelay = document.getElementById("WCdelay");
+
+here wcdelay is the plugin object that implements the plugin API
+-->
+  <style>
+    #plugin {
+      top: 30%;
+      left: 20%;
+    }
+
+    #mocha {
+      position: relative;
+      margin-top: 10%;
+      top: 30%;
+
+    }
+
+    #inputs {
+      display: grid;
+    }
+
+    input {
+      width: 300px;
+    }
+
+     #main {
+      float: left;
+      width: 50%
+    } 
+
+    #layout {
+      display: flex;
+    }
+
+    #helper {
+      float: left;
+      border: 3px;
+      border-style: solid;
+      padding: 10px;
+      width: 50%
+    }
+  </style>
+
+  <title>Plugin tester</title>
+</head>
+
+<body>
+  <div class="title">
+    <h1>Plugin Tester</h1>
+  </div>
+  <div id="layout">
+    <div class="content" id="main">
+      <audio src="./../BasketCaseGreendayriffDI.mp3" id="soundSample" controls loop></audio>
+      <h3>Paste here the link to your webaudio plugin</h3>
+      <div id="inputs">
+        Host URL
+        <input type="text" id="urlHost" name="url">
+        <!-- https://wasabi.i3s.unice.fr/WebAudioPluginBank/PluginLoader/wasabi-host.html> -->
+        <!-- https://webaudiomodules.org/wam-host.html -->
+        
+        Plugin URL (processor or gui)
+        <input type="text" id="urlPlugin">
+        <!-- https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay/PingPongDelay.html -->
+        <!-- https://webaudiomodules.org/synths/obxd.html -->
+        <!--FaustZitaRev.html-->
+        <!--Name of the WC : -->
+        <!-- Linked Webaudio plugins -->
+        
+      </div>
+      <div id="buttons">
+        <button onclick="loadPlugin()">Load it</button>
+        <button id="bt_buildIt">build it</button>
+      </div>
+    </div>
+    <div id="helper">
+        
+      you can try :
+      <p><a href="https://wasabi.i3s.unice.fr/WebAudioPluginBank/PluginLoader/wasabi-host.html">https://wasabi.i3s.unice.fr/WebAudioPluginBank/PluginLoader/wasabi-host.html</a> for wasabi host</p>
+      <p><a href="https://wasabi.i3s.unice.fr/WebAudioPluginBank/PluginLoader/wasabi-host.html">https://wasabi.i3s.unice.fr/WebAudioPluginBank/PluginLoader/wasabi-host.html</a> for WAM host</p> -->
+
+      you can try :
+      <p><a href="https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay/PingPongDelay.html">https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay/PingPongDelay.html</a> for wasabi delay</p>
+      <p><a href="https://wasabi.i3s.unice.fr/WebAudioPluginBank/Faust/ZitaRev/FaustZitaRev.html">https://wasabi.i3s.unice.fr/WebAudioPluginBank/Faust/ZitaRev/FaustZitaRev.html</a> for Faust Reverb</p>
+      <p><a href="https://wasabi.i3s.unice.fr/WebAudioPluginBank/Oliver-Larkin/DualPitchShifter/FaustDualPitchShifter.html">https://wasabi.i3s.unice.fr/WebAudioPluginBank/Oliver-Larkin/DualPitchShifter/FaustDualPitchShifter.html</a> for Faust Pitch Shifter</p>
+      <p><a href="https://webaudiomodules.org/synths/obxd.html">https://webaudiomodules.org/synths/obxd.html</a> for WAM OBXD</p>
+    </div>
+  </div>
+  <div id="mocha"></div>
+  <script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/mocha/mocha.js"></script>
+  <script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/node_modules/chai/chai.js"></script>
+  <script>mocha.setup('bdd')</script>
+</body>
+<script>
+    var AudioContext = window.AudioContext || window.webkitAudioContext;
+    var ctx = new AudioContext();
+    window.onload = () => {
+
+
+      let bt_buildIt = document.querySelector('#bt_buildIt');
+      bt_buildIt.addEventListener('click', () => {
+        buildPlugin(ctx);
+      });
+
+      var player = document.getElementById("soundSample");
+      player.onplay = () => {
+        ctx.resume().then(() => {
+          console.log('Playback resumed successfully');
+        });
+      }
+    }
+    function buildPlugin(ctx) {
+      var player = document.getElementById("soundSample");
+      var mediaSource = ctx.createMediaElementSource(player);
+      var container = document.getElementById("main");
+      let plugUrl = document.getElementById("urlPlugin").value;
+      if (supportsImports) {
+        var self = this;
+        return new Promise(function (resolve, reject) {
+          let host = document.createElement(stockUrl());
+          host.setAttribute("style", "position : relative");
+          host.context = ctx;
+          host.id = "plugin";
+          console.log(host);
+          host.load(plugUrl).then(function (wasabi) {
+            console.log(wasabi);
+            try {
+              console.log("here");
+              if (wasabi instanceof AudioWorkletNode) mediaSource.connect(wasabi);
+              else  mediaSource.connect(wasabi.getInput(0));
+            } catch (error) {
+              console.log(error, "no correct input for this plugin")
+            }
+            wasabi.connect(ctx.destination);
+            container.appendChild(host);
+            testPlugin(wasabi);
+
+          })
+          resolve()
+
+        });
+      }
+    }
+
+    function stockUrl() {
+      var url = document.getElementById("urlHost").value;
+      var tokens = url.split("/");
+      fileName = tokens[tokens.length - 1].split(".")[0];
+      return fileName;
+    }
+
+    function loadPlugin() {
+      //stockUrl();
+      load(document.getElementById("urlHost").value);
+    }
+
+    function load(url, className) {
+      var self = this;
+      if (this._plug) this._plug.disconnect();
+      return new Promise(function (resolve, reject) {
+
+        function loaded() {
+          if (!className) {
+            var tokens = url.split("/");
+            className = tokens[tokens.length - 1].split(".")[0];
+            className = className.toUpperCase();
+          }
+        }
+
+        if (url.endsWith(".js")) {
+          var script = document.createElement('script');
+          script.src = url;
+          script.onload = loaded;
+          document.head.appendChild(script);
+        }
+        else if (url.endsWith(".html")) {
+          var link = document.createElement('link');
+          link.rel = 'import';
+          link.href = url;
+          link.onload = loaded;
+          link.id = "linkHost"
+          document.head.appendChild(link);
+        }
+        else reject("invalid argument");
+      })
+    }
+
+    // to test if the load has succeeded
+    function supportsImports() {
+      return 'import' in document.createElement('link');
+    }
+    /* 
+    here we use mocha chai.js to apply unit test on the plugin. The test cases cover the existence and (soon) the type of the API calls.
+    */
+    function testPlugin(param) {
+      var expect = chai.expect;
+      var assert = chai.assert;
+      var plugin = param;
+
+      describe('Metadata', function () {
+        it('plugin should have a JSON getMetadata() method', function () {
+          expect(plugin.getMetadata()).to.exist;
+        });
+        it('the getMetadata() function should return a json object', function () {
+          expect(plugin.getMetadata()).to.not.be.empty;
+        });
+      });
+
+
+      describe('Descriptor', function () {
+        it('plugin should have a JSON getDescriptor() method', function () {
+          expect(plugin.getDescriptor()).to.exist;
+        });
+        it('getDescriptor() function should return a json object', function () {
+          expect(plugin.getDescriptor()).to.not.be.empty;
+        });
+      });
+
+
+      describe('Param getter', function () {
+        it('plugin should have a getParam(key) method', function () {
+          expect(plugin).to.have.property("getParam")
+        });
+      });
+
+
+      describe('Param setter', function () {
+        it('plugin should have a setParam(key,value) method', function () {
+          expect(plugin).to.have.property("setParam");
+        });
+      });
+
+
+      describe('Patch getter', function () {
+        it('plugin should have a getPatch(key) method', function () {
+          expect(plugin).to.have.property("getPatch");
+
+        });
+      });
+
+
+      describe('Patch setter', function () {
+        it('plugin should have a setPatch(key,value) method', function () {
+          expect(plugin).to.have.property("setPatch");
+        });
+      });
+
+
+      describe('State getter', function () {
+        it('plugin should have a getState() method', function () {
+          expect(plugin).to.have.property("setPatch");
+        });
+      });
+
+
+      describe('State setter', function () {
+        it('plugin should have a setState(value) method', function () {
+          expect(plugin).to.have.property("setState");
+        });
+      });
+
+      describe('midi enable', function () {
+        it('plugin should have a onMidi(msg) method', function () {
+          expect(plugin).to.have.property("onMidi");
+        });
+      });
+
+      describe('Patches array', function () {
+        it('plugin should have a patchNames field', function () {
+          expect(plugin.patchNames).to.exist;
+        });
+        it('patchNames should be instanceOf String []', function () {
+          expect(plugin.patchNames).to.be.an.instanceof(Array);
+        });
+      });
+
+      describe('Input Channel Number', function () {
+        it('plugin should have an inputChannelCount() method', function () {
+          expect(plugin.inputChannelCount()).to.exist;
+        });
+      });
+      mocha.run();
+    }
+  </script>
+
+
+
+
+</html>

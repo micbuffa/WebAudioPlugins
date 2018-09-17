@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>rack show</title>
+  <meta http-equiv="origin-trial" data-feature="AudioWorklet" data-expires="2018-03-06" content="AuqouVYOpuBqGUbQMwRTvnR9R5K1T0u5vw5KUqvZQSNox/gKa/dGig1VWcPYXUzuHN1OtTijH+lhVjg8has9RggAAABseyJvcmlnaW4iOiJodHRwczovL3dhc2FiaS5pM3MudW5pY2UuZnI6NDQzIiwiZmVhdHVyZSI6IkF1ZGlvV29ya2xldCIsImV4cGlyeSI6MTUyMDI5NDQwMCwiaXNTdWJkb21haW4iOnRydWV9">
+  <link rel="import" href="../PluginLoader/wasabi-host.html">
+</head>
+
+<body>
+  <section id="controls">
+    <audio src="./../BasketCaseGreendayriffDI.mp3" id="soundSample" controls loop></audio>
+    <button id="toggleGuitarIn" onclick="toggleGuitarInput(event)">Guitar input:
+      <span style='color:red;'>NOT ACTIVATED</span>, click to toggle on/off!</button>
+  </section>
+  <section id="audioModules">
+    <wasabi-host id="loader"></wasabi-host>
+  </section>
+
+</body>
+<script>
+  var ctx = new AudioContext();
+  var player = document.getElementById("soundSample");
+  var mediaSource = ctx.createMediaElementSource(player);
+  var host = document.querySelector("#loader");
+  host.context = ctx;
+  var guitarPluggedIn = false;
+  var userMedia;
+  var splitter;
+  var merger;
+
+  player.onplay = () => {
+    ctx.resume().then(() => {
+      console.log('Playback resumed successfully');
+    });
+  }
+
+  var constraints = {
+    audio: {
+      echoCancellation: false,
+      mozNoiseSuppression: false,
+      mozAutoGainControl: false,
+      //deviceId: id ? {exact: id} : undefined
+    }
+  };
+
+  // User input part 
+  navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+    window.stream = stream;
+    userMedia = ctx.createMediaStreamSource(stream);
+
+    // To get a stereo sound from just one input
+    splitter = ctx.createChannelSplitter(2);
+    merger = ctx.createChannelMerger(2);
+    splitter.connect(merger, 0, 0);
+    splitter.connect(merger, 0, 1);
+    splitter.connect(merger, 1, 0);
+    splitter.connect(merger, 1, 1);
+
+  })
+
+  function toggleGuitarInput(event) {
+    var button = document.querySelector("#toggleGuitarIn");
+
+    if (!guitarPluggedIn) {
+      userMedia.connect(splitter);
+      button.innerHTML = "Guitar input: <span style='color:green;'>ACTIVATED</span>, click to toggle on/off!";
+    } else {
+      userMedia.disconnect(splitter);
+      button.innerHTML = "Guitar input: <span style='color:red;'>NOT ACTIVATED</span>, click to toggle on/off!";
+    }
+    guitarPluggedIn = !guitarPluggedIn;
+  }
+
+
+  Promise.all([host.load("./../WASABI/QuadraFuzz/QuadraFuzz.html"),host.load("./../WASABI/PingPongDelay/PingPongDelay.html")]).then(function (node) {
+    try {
+
+        mediaSource.connect(node[0].getInput(0));
+        merger.connect(node[0].getInput(0));
+    } catch (error) {
+      console.log(error, "no correct input for this plugin")
+    }
+    node[0].connect(node[1].getInput(0));
+    node[1].connect(ctx.destination);
+    console.log(node[1]._gui.properties.dataWidth.value)
+  });
+</script>
+
+</html>

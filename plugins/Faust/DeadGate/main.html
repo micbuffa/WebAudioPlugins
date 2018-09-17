@@ -1,0 +1,251 @@
+<script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webcomponents-lite.js"></script>
+<script>
+  WebAudioControlsOptions = {
+    useMidi: 1,
+  };
+</script>
+<script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webaudio-controls.js"></script>
+<template>
+  <style>
+    .pedal {
+      display: block;
+      background-color: #009c9f;
+      width: 118px;
+      height: 202px;
+      border-radius: 10px;
+      position: relative;
+      /* bring your own prefixes */
+      box-shadow: 4px 5px 6px rgba(0, 0, 0, 0.7),
+						inset -2px -2px 5px 0px rgba(0, 0, 0, 0.2),
+						inset 3px 1px 1px 4px rgba(255, 255, 255, 0.2),
+						1px 0px 1px 0px rgba(0, 0, 0, 0.9),
+						0 2px 1px 0 rgba(0, 0, 0, 0.9),
+						1px 1px 1px 0px rgba(0, 0, 0, 0.9);
+    }
+
+
+    /* #background-image {
+      //border: solid 2px black;
+      width: 118px;
+      height: 202px;
+      opacity: 1;
+    } */
+
+    #resize {
+      position: absolute;
+      cursor: nwse-resize;
+      width: 10px;
+      height: 10px;
+      left: 110px;
+      top: 194px;
+      border: 1px solid black;
+    }
+
+    .knob,
+    .switch,
+    .icon,
+    .label,
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      text-align: center;
+    }
+
+
+
+    .selected {
+      border: 1px dashed black;
+      cursor: move;
+    }
+
+    .selected:hover {
+      border: 1px dashed black;
+      cursor: move;
+    }
+
+    .selected webaudio-knob {
+      cursor: move;
+    }
+
+    .selected webaudio-switch {
+      cursor: move;
+    }
+
+    .selected span {
+      cursor: move;
+    }
+
+    .selected:hover span {
+      cursor: move;
+    }
+
+    .selected webaudio-slider {
+      cursor: move;
+    }
+
+    .selected:hover webaudio-knob {
+      cursor: move;
+    }
+
+    .selected:hover webaudio-switch {
+      cursor: move;
+    }
+
+    .selected:hover webaudio-slider {
+      cursor: move;
+    }
+
+
+    #switch1 {
+      bottom: 10px;
+      right: 0px;
+    }
+
+    #noisegate {
+      left: 38px;
+      top: 8px;
+    }
+
+    #noisegate div {
+      color: #000000;
+      font-family: "Verdana";
+      font-size: 7px;
+
+    }
+
+    #deadzone {
+      left: 37px;
+      top: 72px;
+    }
+
+    #deadzone div {
+      color: #000000;
+      font-family: "Verdana";
+      font-size: 7px;
+
+    }
+
+    #label_817 {
+      left: 10px;
+      top: 130px;
+      color: #ffffff;
+      font-family: "Arial Black";
+      font-size: 18px;
+    }
+
+
+    #knob1-label {
+      top: 84px;
+      left: 43px;
+    }
+  </style>
+  <div class="pedal">
+
+    <!-- <p class="knob-label" id="knob1-label" contenteditable="true">FREQ</p> -->
+    <!-- <img id="background-image"> -->
+
+    <div class="knob  " id="noisegate">
+      <webaudio-knob src="./img/knobs/Vintage_Knob.png" height="40" width="40" sprites="100" min="-120" max="0" step="1"
+        value="-120"  id="/kpp_distruction/Noise_Gate" style="height: 40px;"></webaudio-knob>
+      <div style="text-align:center">Noise Gate</div>
+    </div>
+    <div class="knob   " id="deadzone">
+      <webaudio-knob src="./img/knobs/Vintage_Knob.png" height="40" width="40" sprites="100" min="-120" max="0" step="1"
+        value="-120" id="/kpp_distruction/Dead_Zone" style="height: 40px;"></webaudio-knob>
+      <div style="text-align:center">Dead Zone</div>
+    </div>
+    <div class="label      " id="label_817">Dead Gate</div>
+  </div>
+</template>
+<script>
+  let DeadGateTemp = document.currentScript.ownerDocument.querySelector('template');
+  class DeadGateGui extends HTMLElement {
+
+
+    constructor(plug) {
+
+      super();
+      this._plug = plug;
+      this._plug.gui = this;
+      console.log(this._plug);
+      this._root = this.attachShadow({ mode: 'open' });
+      this._root.appendChild(DeadGateTemp.content.cloneNode(true));
+      this.knobs = this._root.querySelectorAll(".knob");
+      this.state = new Object();
+      this.setKnobs();
+      this.setResources();
+
+    }
+
+    attributeChangedCallback() {
+
+      this.state = JSON.parse(this.getAttribute('state'));
+      console.log(this.state);
+      if (this.state.status == "enable") {
+        this._root.querySelector(".switch").querySelector("webaudio-switch").value = 1;
+        this.isOn = true;
+      }
+      //this.labels = this._root.querySelectorAll(".knob-label");
+      for (var i = 0; i < this.knobs.length; i++) {
+        //this.knobs[i].querySelector("webaudio-konb").value = this.state[this.labels[i].innerHTML.toLowerCase().replace(/ /g, "")] * 100;
+        this.knobs[i].querySelector("webaudio-knob").value = this.state[this.knobs[i].querySelector("webaudio-knob").id];
+      }
+
+    }
+
+    get properties() {
+
+      this.boundingRect = {
+        dataWidth: {
+          type: Number,
+          value: 118
+        },
+        dataHeight: {
+          type: Number,
+          value: 202
+        }
+      };
+      return this.boundingRect;
+
+    }
+
+    static get observedAttributes() {
+
+      return ['state'];
+
+    }
+
+    setResources() {
+
+      // Sets the background image and style.
+      // var background = this._root.querySelector('img');
+      // background.src = this._plug.URL + '/assets/undefined';
+      // background.style = 'border-radius : 10px;'
+
+      this._root.querySelectorAll(".knob").forEach((knob) => {
+        knob.querySelector("webaudio-knob").setAttribute('src', this._plug.URL + '/assets/Vintage_Knob.png');
+      });
+    }
+
+
+
+    setKnobs() {
+      this._root.querySelector("#noisegate").querySelector("webaudio-knob").addEventListener('input', (e) => this._plug.setParam("/kpp_distruction/Noise_Gate", e.target.value));
+      this._root.querySelector("#deadzone").querySelector("webaudio-knob").addEventListener('input', (e) => this._plug.setParam("/kpp_distruction/Dead_Zone", e.target.value));
+    }
+  }
+
+
+  try {
+    customElements.define('faust-deadgate', DeadGateGui);
+    console.log("Element defined");
+  } catch (error) {
+    console.log(error);
+    console.log("Element already defined");
+  }
+
+  createdeadgateGUI = (plug) => {
+    let elem = new DeadGateGui(plug);
+    return elem;
+  }
+</script>

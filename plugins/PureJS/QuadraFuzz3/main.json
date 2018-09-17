@@ -1,0 +1,8 @@
+  {
+    "documentation": "...",
+    "name": "QuadraFuzz",
+    "thumbnail": "./assets/WasabiQuadraFuzz.png",
+    "vendor": "Wasabi",
+    "category":"Distortion",
+    "version": "1.2"
+  }

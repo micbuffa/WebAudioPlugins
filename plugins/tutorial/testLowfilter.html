@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Host that loads a plugin with its GUI</title>
+</head>
+<script src="./../sdk/WebAudioSDK.js"></script>
+<script src="./lowfilter/main.js"></script>
+
+<body>
+    <audio src="./../BasketCaseGreendayriffDI.mp3" id="soundSample" controls loop crossorigin></audio>
+</body>
+<script>
+  
+  var ctx = new AudioContext();
+  var pluginURL = "./lowfilter";
+  var plugin = new window.WasabiLowfilter(ctx, pluginURL);
+
+  var player = document.getElementById("soundSample");
+  player.onplay = () => {
+    ctx.resume().then(() => {
+      console.log('Playback resumed successfully');
+    });
+  }
+  var mediaSource = ctx.createMediaElementSource(player);
+
+  plugin.load().then((node) => {
+
+    plugin.loadGui().then((elem) => {
+      document.body.appendChild(elem);
+    });
+    mediaSource.connect(node);
+    node.connect(ctx.destination)
+  })
+</script>
+
+</html>

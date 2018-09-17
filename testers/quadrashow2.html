@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Quadrafuzz state setter</title>
+</head>
+<meta http-equiv="origin-trial" data-feature="AudioWorklet" data-expires="2018-03-06" content="AuqouVYOpuBqGUbQMwRTvnR9R5K1T0u5vw5KUqvZQSNox/gKa/dGig1VWcPYXUzuHN1OtTijH+lhVjg8has9RggAAABseyJvcmlnaW4iOiJodHRwczovL3dhc2FiaS5pM3MudW5pY2UuZnI6NDQzIiwiZmVhdHVyZSI6IkF1ZGlvV29ya2xldCIsImV4cGlyeSI6MTUyMDI5NDQwMCwiaXNTdWJkb21haW4iOnRydWV9">
+<script src="./../sdk/WebAudioSDK.js"></script>
+
+<script src="./../WASABI/QuadraFuzz3/main.js"></script>
+
+<body>
+  <audio src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/BasketCaseGreendayriffDI.mp3" id="soundSample" controls loop crossorigin></audio>
+  <button id="save">Save current state</button>
+  <button id="load">Load last saved state</button>
+  <br>
+  <br>
+  <button id="fuzzOn">Fuzz switch</button>
+  <input type="range" id="gains" min="0" max="1" step="0.01" value="0.5">Gain
+</body>
+<script>
+
+  var ctx = new AudioContext(), settings, plugin;
+
+
+  var player = document.getElementById("soundSample");
+  player.onplay = () => {
+    ctx.resume().then(() => {
+      console.log('Playback resumed successfully');
+    });
+  }
+  var mediaSource = ctx.createMediaElementSource(player);
+  var _settings;
+
+
+  var pluginURL = "./../WASABI/QuadraFuzz3";
+  var plugin = new window.WasabiQuadraFuzz(ctx, pluginURL);
+
+  plugin.load().then((node) => {
+
+    plugin.loadGui().then((elem) => {
+      document.body.appendChild(elem);
+      //listeners for testing load/save state
+      document.querySelector("#save").addEventListener('click', () => {
+        node.getState()
+          .then((data) => {
+            _settings = data;
+            console.log("State saved :", data);
+          })
+      });
+
+      document.querySelector("#load").addEventListener('click', () => {
+        node.setState(_settings).then((data) => {
+          console.log("State restored :", data)
+        })
+      });
+
+      document.querySelector("#fuzzOn").addEventListener('click', () => {
+        if (node.getParam("status") == "disable") {
+          node.setParam("status", "enable");
+        }
+        else {
+          node.setParam('status', 'disable');
+        }
+
+      });
+
+      document.querySelector("#gains").addEventListener('input', (e) => {
+        node.setParam("lowgain", parseFloat(e.target.value))
+        node.setParam("midlowgain", parseFloat(e.target.value));
+        node.setParam("midhighgain", parseFloat(e.target.value));
+        node.setParam("highgain", parseFloat(e.target.value));
+      });
+    });
+
+    node.setParam("status", "disable");
+    node.getMetadata().then((meta) => {
+      console.log(meta)
+    });
+    mediaSource.connect(node);
+    node.connect(ctx.destination);
+  });
+</script>
+
+</html>

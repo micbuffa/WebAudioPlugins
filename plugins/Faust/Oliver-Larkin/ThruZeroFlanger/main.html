@@ -1,0 +1,241 @@
+<script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webcomponents-lite.js"></script>
+<script>
+  WebAudioControlsOptions = {
+    useMidi: 1,
+  };
+</script>
+<script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webaudio-controls.js"></script>
+<template id="wc-thruzero">
+  <style>
+    :host {
+      background: linear-gradient( rgb(77, 74, 78), rgb(48, 115, 238));
+      box-shadow: 4px 5px 6px rgba(0, 0, 0, 0.7), inset -2px -2px 5px 0px rgba(0, 0, 0, 0.2), inset 3px 1px 1px 4px rgba(255, 255, 255, 0.2), 1px 0px 1px 0px rgba(0, 0, 0, 0.9), 0 2px 1px 0 rgba(0, 0, 0, 0.9), 1px 1px 1px 0px rgba(0, 0, 0, 0.9);
+      width: 150px;
+      height: 180px;
+      display: block;
+      user-select: none;
+      cursor: move;
+      z-index: 9;
+    }
+
+    :host {
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+
+    .pedalLabel,
+    .div_buttons {
+      border-radius: 8px;
+    }
+
+    .div_menuPanel {
+      /* border-top-left-radius: 8px;
+        border-top-right-radius: 8px; */
+    }
+
+    .laPedale {
+      /* box-shadow: inset 0px 3px 10px #111; */
+    }
+
+    webaudio-switch {
+      left: -6px;
+    }
+
+    .pedalLabel {
+      /* background: rgba(0, 0, 0, 0.4); */
+      box-shadow: inset 0px 1px 5px #111;
+      border: 1px solid #ccc;
+      color: #ccc;
+      /* border:2px solid #aaa; */
+      padding: 4px 10px;
+      margin: 2px 0px;
+
+      font-size: 10px;
+      text-align: center;
+      user-select: none;
+      /* font-family: Lemon\/Milk; */
+      font-family: helvetica;
+      text-transform: uppercase;
+    }
+
+    .knob-label {
+      color: #ddd;
+      text-shadow: 0px 1px 1px #000;
+
+      font-size: 6px;
+      margin-top: -2px;
+
+      text-align: center;
+      text-transform: uppercase;
+      overflow: hidden;
+      user-select: none;
+      font-family: helvetica;
+
+    }
+
+    .elements {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+
+      padding: 10px;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+
+      flex: 1;
+      margin: 3px;
+    }
+
+    .row {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: stretch;
+    }
+
+    *:focus {
+      outline: 0;
+    }
+  </style>
+  <div class="row">
+    <div class="column">
+      <webaudio-knob id="/Thru_Zero_Flanger/Delay" class="knob" sprites="99" value="10" min="0.5" max="20" step="0.01" midilearn="true" width="40"
+        height="40" src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/nux_black_white_stripe.png" data-role="Delay" tabindex=-1></webaudio-knob>
+      <span class="knob-label" id="knob1-label">Delay</span>
+    </div>
+    <div class="column">
+      <webaudio-knob id="/Thru_Zero_Flanger/Depth" class="knob" sprites="99" value="20" min="3" max="100" step="1" midilearn="true" width="40" height="40"
+        src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/nux_black_white_stripe.png" data-role="Depth"></webaudio-knob>
+      <span class="knob-label" id="knob2-label">Depth</span>
+    </div>
+  </div>
+  <div class="row">
+    <div class="column">
+      <webaudio-knob id="/Thru_Zero_Flanger/L-R_Offset" class="knob" sprites="99" value="0" min="0" max="1" step="0.001" midilearn="true" width="40" height="40"
+        src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/nux_black_white_stripe.png" data-role="L_R-offset"></webaudio-knob>
+      <span class="knob-label" id="knob10-label">L_R offset</span>
+    </div>
+    <div class="column">
+      <webaudio-knob id="/Thru_Zero_Flanger/Rate" class="knob" sprites="99" value="0.1" min="0" max="1" step="0.001" midilearn="true" width="40"
+        height="40" src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/nux_black_white_stripe.png" data-role="Rate"></webaudio-knob>
+      <span class="knob-label" id="knob11-label">Rate</span>
+    </div>
+  </div>
+  <div class="row">
+    <div class="column">
+      <webaudio-switch midilearn="true" src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/switch_1.png" class="switch" id="switch1"
+        width="40" height="25"></webaudio-switch>
+    </div>
+  </div>
+  <div class="row">
+    <div class="column">
+      <span class="pedalLabel">FAUST ThruZeroFlanger</span>
+    </div>
+  </div>
+</template>
+<script>
+  let thruZeroTemp = document.currentScript.ownerDocument.querySelector("#wc-thruzero");
+  class ThruZeroFlangerGui extends HTMLElement {
+    static get is() { return 'larkin-thruzero'; }
+
+    constructor(plug) {
+      super();
+      this._plug = plug; // store for later use
+      this._plug.gui = this;
+      this._root = this.attachShadow({ mode: 'open' });
+      this._root.appendChild(thruZeroTemp.content.cloneNode(true));
+      this.isOn = false;
+      this.knobs = [];
+      this.setKnobs();
+      this.setSwitchListener();
+      this.bypass();
+    }
+
+    get properties() {
+      this.boundingRect = {
+        dataWidth: {
+          type: Number,
+          value: 140
+        },
+        dataHeight: {
+          type: Number,
+          value: 180
+        }
+      };
+      return this.boundingRect;
+    }
+
+
+    static get observedAttributes() {
+      return ['state'];
+    }
+
+
+    attributeChangedCallback() {
+      console.log(`Custom element ${this.is} attributes changed.`);
+      this.state = JSON.parse(this.getAttribute('state'));
+      let tmp = "/Thru_Zero_Flanger/bypass";
+      if (this.state[tmp] == 1) {
+        this._root.querySelector("#switch1").value = 0;
+        this.isOn = false;
+      } else if (this.state[tmp] == 0) {
+        this._root.querySelector("#switch1").value = 1;
+        this.isOn = true;
+      }
+      this.knobs = this._root.querySelectorAll(".knob");
+      for (var i = 0; i < this.knobs.length; i++) {
+				this.knobs[i].setValue(this.state[this.knobs[i].id],false);
+      }
+    }
+
+    setKnobs() {
+      this._root.getElementById("/Thru_Zero_Flanger/Delay").addEventListener('input', (e) => this._plug.setParam("/Thru_Zero_Flanger/Delay", e.target.value));
+      this._root.getElementById("/Thru_Zero_Flanger/Depth").addEventListener('input', (e) => this._plug.setParam("/Thru_Zero_Flanger/Depth", e.target.value));
+      this._root.getElementById("/Thru_Zero_Flanger/L-R_Offset").addEventListener('input', (e) => this._plug.setParam("/Thru_Zero_Flanger/L-R_Offset", e.target.value));
+      this._root.getElementById("/Thru_Zero_Flanger/Rate").addEventListener('input', (e) => this._plug.setParam("/Thru_Zero_Flanger/Rate", e.target.value));
+
+    }
+
+  
+
+    setSwitchListener() {
+      console.log("setswitch");
+      this._root.querySelector("#switch1").addEventListener('change', (e) => {
+        if (this.isOn) this.bypass()
+        else this.reactivate();
+        this.isOn = !this.isOn;
+      });
+    }
+
+    bypass() {
+      this._plug.setParam("/Thru_Zero_Flanger/bypass", 1);
+    }
+
+    reactivate() {
+      this._plug.setParam("/Thru_Zero_Flanger/bypass", 0);
+
+    }
+
+
+  }
+  // Register the x-custom element with the browser
+  try {
+    customElements.define('larkin-thruzero', ThruZeroFlangerGui);
+    console.log("Element defined");
+  } catch (error) {
+    console.log(error);
+    console.log("Element already defined");
+  }
+
+
+  const createThruZeroFlangerGUI = (plug) => {
+    let elem = new ThruZeroFlangerGui(plug);
+    return elem;
+  }
+</script>

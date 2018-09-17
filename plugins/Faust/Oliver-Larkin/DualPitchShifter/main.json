@@ -1,0 +1,9 @@
+
+  {
+    "documentation": "...",
+    "name": "DualPitchShifter",
+    "thumbnail": "FaustDualPitchShifter.png",
+    "vendor": "Larkin",
+    "category":"Modulation",
+    "version": "1.0"
+  }

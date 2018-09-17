@@ -1,0 +1,8 @@
+{
+  "documentation": "...",
+  "name": "Lowfilter",
+  "thumbnail": "./assets/Lowfilter.png",
+  "vendor": "Wasabi",
+  "category":"Filters",
+  "version": "1.0"
+}

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>wam show</title>
+</head>
+<meta http-equiv="origin-trial" data-feature="AudioWorklet" data-expires="2018-03-06" content="AuqouVYOpuBqGUbQMwRTvnR9R5K1T0u5vw5KUqvZQSNox/gKa/dGig1VWcPYXUzuHN1OtTijH+lhVjg8has9RggAAABseyJvcmlnaW4iOiJodHRwczovL3dhc2FiaS5pM3MudW5pY2UuZnI6NDQzIiwiZmVhdHVyZSI6IkF1ZGlvV29ya2xldCIsImV4cGlyeSI6MTUyMDI5NDQwMCwiaXNTdWJkb21haW4iOnRydWV9">
+<script src="https://webaudiomodules.org/synths/wasm/obxd/main.js"></script>
+
+
+<body>
+  
+
+</body>
+<script>
+  
+  var ctx = new AudioContext();
+  var pluginURL = "https://webaudiomodules.org/synths/wasm/obxd";
+  var plugin = new WAPlugin.OBXD(ctx, pluginURL);
+
+  plugin.load().then((node) => {
+
+    plugin.loadGui().then((elem) => {
+      document.body.appendChild(elem);
+      elem.onmessage();
+    });
+    node.connect(ctx.destination);
+    
+  })
+
+  
+</script>
+
+</html>

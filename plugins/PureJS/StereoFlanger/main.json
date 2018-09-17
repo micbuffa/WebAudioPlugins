@@ -1,0 +1,8 @@
+  {
+    "documentation": "TODO", 
+    "name": "StereoFlanger",
+    "thumbnail": "WasabiStereoFlanger.png",
+    "vendor": "Wasabi",
+    "category":"Modulation",
+    "version": "1.0"
+  }

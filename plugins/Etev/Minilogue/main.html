@@ -1,0 +1,600 @@
+<!-- <script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webcomponents-lite.js"></script> -->
+<script>
+  WebAudioControlsOptions = {
+    useMidi: 1,
+  };
+</script>
+<script src='./../scripts/querty-hancock.js'></script>
+<script src="./../../bower_components/webaudio-controls2/webaudio-controls.js"></script>
+<link rel="import" href="https://wasabi.i3s.unice.fr/WebAudioPluginBank/Mike-AUBENAS/Visualizers/FrequencyViewer/frequencyViewer.html">
+<template id="wc-minilogue">
+  <style>
+    :host {
+      background: linear-gradient( rgb(77, 74, 78), rgb(221, 221, 221));
+      box-shadow: 4px 5px 6px rgba(0, 0, 0, 0.7), inset -2px -2px 5px 0px rgba(0, 0, 0, 0.2), inset 3px 1px 1px 4px rgba(255, 255, 255, 0.2), 1px 0px 1px 0px rgba(0, 0, 0, 0.9), 0 2px 1px 0 rgba(0, 0, 0, 0.9), 1px 1px 1px 0px rgba(0, 0, 0, 0.9);
+      width: 580px;
+      height: 300px;
+      display: block;
+      user-select: none;
+      cursor: move;
+      z-index: 9;
+      position: relative;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+    #background-image {
+			width: 580px;
+      height: 300px;
+			opacity: 0.6;
+      z-index: -1;
+      -webkit-user-drag: none;
+		}
+    
+    .knob,
+		.switch,
+		.slide,
+		.label,
+    .section,
+    .modebutton, .wheel{position: absolute;cursor: pointer;
+      text-align: -webkit-center; 
+		}
+
+    .knob-label {
+      color: #ddd;
+      text-shadow: 0px 1px 1px #000;
+
+      font-size: 6px;
+      margin-top: -2px;
+
+      text-align: center;
+      text-transform: uppercase;
+      overflow: hidden;
+      user-select: none;
+      font-family: helvetica;
+
+    }
+    #minimalGUI {
+      position: absolute;
+      width:570px;
+      height: 20px;
+      top: 0px;
+      left: 0px;
+      background: rgba(97, 57, 5, 0.63);
+      padding: 5px;
+      margin: 0px;
+    }
+    *:focus {
+      outline: 0;
+    }
+    webaudio-switch {
+      left: -6px;
+    }
+
+    /* Const*/
+    .knob div, .slide div,.modebutton div, .switch div, .wheel div{color: #cccccc;font-family: "Roboto";font-size: 8px;text-shadow: 0px 1px 1px #000;}
+    .section{color: #aaaaaa;font-family: "Roboto";font-size: 10px;text-shadow: 0px 1px 1px #000;}
+    /* For each control*/
+    #keyboard{left:45px;top:190px;position: absolute !important;cursor: pointer;}
+    #master{left: 20px;top:55px;}
+
+    #osc1octave{left:65px;top:45px;}
+    #wave1{left:95px;top:45px;}
+    #osc1pitch{left:125px;top:45px;}
+    #osc1shape{left:155px;top:45px;}
+    #osc1gain{left:185px;top:45px;}
+
+    #osc2octave{left:65px;top:95px;}
+    #wave2{left:95px;top:95px;}
+    #osc2pitch{left:125px;top:95px;}
+    #osc2shape{left:155px;top:95px;}
+    #osc2gain{left:185px;top:95px;}
+
+    #noise{left:185px;top:145px;}
+    #ring{left:155px;top:145px;}
+    #sync{left:125px;top:145px;}
+    #resonance{left:225px;top:95px;}
+    #egint{left:235px;top:145px;}
+    #highpass{left:410px;top:45px;}
+    #lowpass{left:230px;top:45px;}
+
+    #ampattack{left:275px;top:45px;}
+    #ampdecay{left:305px;top:45px;}
+    #ampsustain{left:335px;top:45px;}
+    #amprelease{left:365px;top:45px;}
+
+    #egattack{left:275px;top:95px;}
+    #egdecay{left:305px;top:95px;}
+    #egsustain{left:335px;top:95px;}
+    #egrelease{left:365px;top:95px;}
+
+    #lforate{left:305px;top:145px;}
+    #lfoint{left:335px;top:145px;}
+    #lfodest{left:365px;top:150px;}
+
+    #time{left:445px;top:45px;}
+    #feedback{left:470px;top:45px;}
+    #switchDelay{left:500px;top:45px;}
+
+    #poly{left:400px;top:145px;}
+    #duo{left:422px;top:145px;}
+    #unison{left:442px;top:145px;}
+    #mono{left:469px;top:145px; display : none}
+    #arp{left:490px;top:145px; display: none}
+
+    #voicedepth{left:515px;top:95px;}
+
+    #wheel{left:40px;top:145px;}
+
+    #wheel webaudio-slider .webaudio-slider-body{transform: rotate(20deg);}
+
+    /* For each Section title*/
+    #vco1{left:105px;top:35px;}
+    #vco2{left:105px;top:85px;}
+    #mixer{left:185px;top:35px;}
+    #filter{left:230px;top:35px;}
+    #ampeg{left:315px;top:35px;}
+    #eg{left:320px;top:85px;}
+    #lff{left:320px;top:135px;}
+    #dl{left:440px;top:35px;}
+
+    #freqview {
+      position:absolute;
+      left:410px;
+      top:100px;
+      border: solid;
+      border-width: 1px;
+      border-color: azure;
+    }
+    #midiport{position: absolute;left: 30px;}
+    .pedalLabel{position: absolute; left:230px;color: #e2e2e2;font-family: "Roboto";font-size: 18px;}
+  </style>
+  <img id="background-image">
+  <div class="column" id="minimalGUI">
+      <select id="midiport">
+        <option>--</option>
+      </select>
+      <span class="pedalLabel" id="name">Web-Minilogue</span>
+  </div>
+  <div class="knob" id="master">
+    <webaudio-knob sprites="99" min="0" max="10" value="5" step="0.01" midilearn="true" diameter="24"
+      tooltip="Master Volume %.2f"></webaudio-knob>
+      <div style="text-align:center">Master</div>
+  </div>
+  <div class="section" id="vco1">VCO1</div>
+  <div class="slide" id="osc1octave" >
+    <webaudio-slider  midilearn="1" value="2" min="1" max="5" step="1" width="15" height="24" tooltip="Osc1 octave %d"></webaudio-slider>
+    <div style="text-align:center">Octave</div>
+  </div>
+  <div class="slide" id="wave1">
+    <webaudio-slider  midilearn="1" value="2" min="0" max="2" step="1" width="15" height="24" tooltip="0:saw 1:triangle 2:square %d"></webaudio-slider>
+    <div style="text-align:center">Wave</div>
+  </div>
+  <div id="osc1pitch" class="knob">
+    <webaudio-knob  min=0.5 max="2" sprites="99" value="1" step="0.01" midilearn="true" tooltip="Osc1 pitch * %.2f"
+      diameter="24"></webaudio-knob>
+    <div style="text-align:center">Pitch</div>
+  </div>
+  <div id="osc1shape" class="knob">
+    <webaudio-knob  min="0" max="100" sprites="99" value="0.5" step="0.01" midilearn="true" tooltip="Waveshaper amount %.2f"
+      diameter="24"></webaudio-knob>
+      <div style="text-align:center">Shape</div>
+  </div>
+  <div class="slide" id="sync">
+    <webaudio-slider  midilearn="1"  value="0" min="0" max="1" step="1" width="15" height="24"
+      tooltip="sync state %d"></webaudio-slider>
+      <div style="text-align:center">Sync</div>
+    </div>
+  <div class="slide" id="ring">
+    <webaudio-slider  midilearn="1"  value="0" min="0" max="1" step="1" width="15" height="24"
+      tooltip="ring state %d"></webaudio-slider>
+      <div style="text-align:center">Ring</div>
+  </div>
+  <div class="section" id="mixer">MIXER</div>
+  <div id="osc1gain" class="knob">
+    <webaudio-knob  sprites="99" min="0" max="8" value="8" step="0.01" midilearn="true" tooltip="Gain for osc1 %.2f"
+      diameter="24"></webaudio-knob>
+      <div style="text-align:center">Gain</div>
+  </div>
+  <div class="section" id="vco2">VCO2</div>
+  <div class="slide" id="osc2octave">
+    <webaudio-slider  midilearn="1"  value="2" min="1" max="5" step="1" width="15" height="24"
+      tooltip="Osc2 octave %d"></webaudio-slider>
+      <div style="text-align:center">Octave</div>
+    </div>
+  <div class="slide" id="wave2">
+    <webaudio-slider  midilearn="1"  value="2" min="0" max="2" step="1" width="15" height="24"
+      tooltip="0:saw 1:triangle 2:square %d"></webaudio-slider>
+      <div style="text-align:center">Wave</div>
+  </div>
+  <div id="osc2pitch" class="knob">
+    <webaudio-knob  min="0.5" max="2" sprites="99" value="1" step="0.01" midilearn="true" tooltip="Osc2 pitch * %.2f"
+      diameter="24"></webaudio-knob>
+      <div style="text-align:center">Pitch</div>
+    </div>
+  <div id="osc2shape" class="knob">
+    <webaudio-knob  min="0" max="100" sprites="99" value="0.5" step="0.01" midilearn="true" tooltip="Waveshaper amount %.2f"
+      diameter="24"></webaudio-knob>
+      <div style="text-align:center">Shape</div>
+  </div>
+  <div id="osc2gain" class="knob">
+    <webaudio-knob  sprites="99" min="0" max="8" step="0.01" value="8" midilearn="true" tooltip="Gain for osc2 %.2f"
+      diameter="24"></webaudio-knob>
+      <div style="text-align:center">Gain</div>
+  </div>
+  <div id="noise" class="knob">
+    <webaudio-knob  sprites="99" min="0" max="3" value="0.1" step="0.1" midilearn="true" diameter="24"
+      tooltip="Noise amount %.1f db"></webaudio-knob>
+      <div style="text-align:center">Noise</div>
+  </div>
+  <div id="egint" class="knob">
+    <webaudio-knob  sprites="99" min="30" max="8000" value="3500" step="0.01" midilearn="true" diameter="24"
+      tooltip="Enveloppe intensity in filter %.2f "></webaudio-knob>
+      <div style="text-align:center">EgInt</div>
+  </div>
+  <div class="section" id="filter">FILTER</div>
+  <div id="lowpass" class="knob">
+    <webaudio-knob  min="1" max="100" value="60" sprites="99" step="1" tooltip=" Lowpass Cutoff:  %d"
+      conv="(x)=>{return Math.pow(22000-30,x/100) +30}" midilearn="true" diameter="30"></webaudio-knob>
+      <div style="text-align:center">Cutoff</div>
+  </div>
+  <div id="highpass" class="knob">
+    <webaudio-knob i min="30" max="5000" sprites="99" value="30" step="0.01" tooltip="Highpass Cutoff:  %d"
+      midilearn="true" diameter="24"></webaudio-knob>
+      <div style="text-align:center">Highpass</div>
+  </div>
+  <div  id="resonance" class="knob">
+    <webaudio-knob sprites="99" min="0" max="30" value="0.1" step="0.01" tooltip="Filter Resonance:  %.1f"
+      midilearn="true" diameter="24"></webaudio-knob>
+      <div style="text-align:center">Resonance</div>
+  </div>
+  <div class="section" id="ampeg">AMP EG</div>
+  <div id="ampattack" class="knob">
+    <webaudio-knob  min="0.001" max="5" sprites="99" value="0.001" tooltip="Time to reach maximum amplitude:  %.1f s"
+      step="0.1" midilearn="true" diameter="24"></webaudio-knob>
+      <div style="text-align:center">Attack</div>
+  </div>
+  <div id="ampdecay" class="knob">
+    <webaudio-knob  min="0.001" max="5" sprites="99" value="1" step="0.1" midilearn="true" diameter="24"
+      tooltip="Time to stay at maximum amplitude:  %.1f s"></webaudio-knob>
+      <div style="text-align:center">Decay</div>
+  </div>
+  <div id="ampsustain" class="knob">
+    <webaudio-knob  min="0.001" max="1" sprites="99" value="0.5" step="0.01" midilearn="true" diameter="24"
+      tooltip="Sustain amount:  %.2f s"></webaudio-knob>
+      <div style="text-align:center">Sustain</div>
+  </div>
+  <div id="amprelease" class="knob">
+    <webaudio-knob  min="0.001" max="5" sprites="99" value="0.001" step="0.1" midilearn="true" diameter="24"
+      tooltip="Time to reach 0 amplitude:  %.1f s"></webaudio-knob>
+      <div style="text-align:center">Release</div>
+  </div>
+  <div class="section" id="eg">EG</div>
+  <div id="egattack" class="knob">
+    <webaudio-knob  min="0.001" max="5" sprites="99" value="0.5" step="0.1" midilearn="true" tooltip="Time to reach maximum amplitude:  %.1f s"
+      diameter="24"></webaudio-knob>
+      <div style="text-align:center">Attack</div>
+  </div>
+  <div id="egdecay" class="knob">
+    <webaudio-knob  min="0.001" max="5" sprites="99" value="1" step="0.1" midilearn="true" diameter="24"
+      tooltip="Time to stay at maximum amplitude:  %.1f s"></webaudio-knob>
+      <div style="text-align:center">Decay</div>
+  </div>
+  <div id="egsustain" class="knob">
+    <webaudio-knob  min="0.001" max="1" sprites="99" value="0.5" step="0.01" midilearn="true" diameter="24"
+      tooltip="Sustain amount:  %.2f s"></webaudio-knob>
+      <div style="text-align:center">Sustain</div>
+  </div>
+  <div id="egrelease" class="knob">
+    <webaudio-knob min="0.001" max="5" sprites="99" value="0.001" step="0.1" midilearn="true" diameter="24"
+      tooltip="Time to reach 0 amplitude:  %.1f s"></webaudio-knob>
+      <div style="text-align:center">Release</div>
+  </div>
+  <div class="section" id="lff">LFO</div>
+  <div id="lforate" class="knob">
+    <webaudio-knob  min="0" max="20" sprites="99" value="0" step="0.01" midilearn="true" diameter="24"
+      tooltip="LFO frequency:  %d"></webaudio-knob>
+      <div style="text-align:center">Rate</div>
+  </div>
+  <div id="lfoint" class="knob">
+    <webaudio-knob i min="1" max="1000" sprites="99" value="20" step="1" midilearn="true" diameter="24"
+      tooltip="LFO Gain:  %d"></webaudio-knob>
+      <div style="text-align:center">Int</div>
+  </div>
+  <div class="slide" id="lfodest">
+    <webaudio-slider  midilearn="1" value="0" min="0" max="2" step="1" width="15" tooltip="0:cutoff 2:pitch  %d" height="20"></webaudio-slider>
+    <div style="text-align:center">Target</div>
+  </div>
+
+  <div class="section" id="dl">DELAY</div>
+  <div id="time" class="knob">
+    <webaudio-knob  min="0" max="1" sprites="99" value="0.5" step="0.01" midilearn="true" diameter="24"></webaudio-knob>
+    <div style="text-align:center">Time</div>
+  </div>
+  <div id="feedback" class="knob">
+    <webaudio-knob  min="0" max="1" sprites="99" value="0.5" step="0.01" midilearn="true" diameter="24"></webaudio-knob>
+    <div style="text-align:center">Feedback</div>
+  </div>
+  <div id="switchDelay" class="switch">
+    <webaudio-switch  midilearn="true" src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/img/switch_2.png"
+      width="60" height="30"></webaudio-switch>
+      <div style="text-align:center">Activ</div>
+  </div>
+  <div id="freqview"></div>
+  <div class="modebutton" id="poly">
+    <webaudio-switch  midilearn="1" value="1"   width="20" height="20" tooltip="(not implemented yet)"></webaudio-switch>
+    <div style="text-align:center">Poly</div>
+  </div>
+  <div  class="modebutton" id="duo">
+    <webaudio-switch midilearn="1"   width="20" height="20" tooltip="(not implemented yet)"
+      ></webaudio-switch>
+      <div style="text-align:center">Duo</div>
+    </div>
+  <div  class="modebutton" id="unison">
+    <webaudio-switch midilearn="1"   width="20" height="20" tooltip="(not implemented yet)"
+      ></webaudio-switch>
+      <div style="text-align:center">Unison</div>
+  </div>
+  <div class="modebutton" id="mono">
+    <webaudio-switch  midilearn="1"   width="20" height="20" tooltip="(not implemented yet)"
+      ></webaudio-switch>
+      <div style="text-align:center">Mono</div>
+  </div>
+  <div class="modebutton" id="arp">
+    <webaudio-switch  midilearn="1"   width="20" height="20" tooltip="(not implemented yet)"
+      ></webaudio-switch>
+      <div style="text-align:center">Arp</div>
+  </div>
+  <div id="voicedepth" class="knob">
+    <webaudio-knob  min="0" max="100" sprites="99" value="0" step="1" midilearn="true" diameter="24"
+      tooltip="detune or sub (not implemented yet)"></webaudio-knob>
+      <div style="text-align:center">Depth</div>
+  </div>
+  <div class="wheel" id="wheel">
+    <webaudio-slider midilearn="1" value="50" min="1" max="100" step="1" direction="horz" width="50" height="14" tooltip="Wheel %d (not implemented yet)"></webaudio-slider>
+  </div>
+      <div id="keyboard"></div>
+</template>
+<script>
+  let minitemp = document.currentScript.ownerDocument.querySelector("#wc-minilogue");
+  class MinilogueGui extends HTMLElement {
+
+    constructor(plug) {
+      super();
+      this._plug = plug;
+      this._root = this.attachShadow({ mode: 'open' });
+      this._root.appendChild(minitemp.content.cloneNode(true));
+      this.knobs = [];
+      this.slides =[];
+      this.modes = [];
+      this._root.querySelectorAll(".knob").forEach((knob)=>{this.knobs.push(knob)});
+      this._root.querySelectorAll('.slide').forEach((slide)=>{this.slides.push(slide)});
+      this._root.querySelectorAll('.modebutton').forEach((button)=>{this.modes.push(button)})
+      this.isDelayOn = false;
+      this.bypassDelay();
+      this.setKnobs();
+      this.setKeyboard();
+      this.setResources();
+      this.setSwitchListener();
+      this.setViewer();
+      this.curMidi = 0;
+      this.midiPort = [];
+      this.currentPort = -1;
+      this._root.querySelector('#midiport').onchange = (evt) => this.SelectMidi(evt.target.selectedIndex - 1);
+      this.InitMidi();
+      this.kb = this._root.querySelector("#keyboard");
+    }
+
+    get properties() {
+      this.boundingRect = {
+        dataWidth: {
+          type: Number,
+          value: 600
+        },
+        dataHeight: {
+          type: Number,
+          value: 100
+        }
+      };
+      return this.boundingRect;
+    }
+
+    static get observedAttributes() { return ['state']; }
+
+    attributeChangedCallback() {
+      console.log(`Custom element ${this.is} attributes changed.`);
+      this.state = JSON.parse(this.getAttribute('state'));
+      console.log(this.state);
+      if (this.state.status == "enable") {
+        this._root.querySelector("#switchDelay").querySelector("webaudio-switch").value = 1;
+        this.isDelayOn = true;
+      }
+
+     for (var i = 0; i < this.knobs.length; i++) {
+      this.knobs[i].querySelector("webaudio-knob").setValue(this.state[this.knobs[i].id],false);
+        
+      }
+      for (var i = 0; i < this.slides.length; i++) {
+        this.slides[i].querySelector("webaudio-slider").setValue(this.state[this.slides[i].id],false);
+
+			}
+
+    }
+    
+
+    setKnobs() {
+      for (var i = 0; i < this.knobs.length; i++) {
+        this.eventToKnob(i);
+      }
+      for (var j = 0; j < this.slides.length; j++) {
+        this.eventToSlide(j);
+      }
+      for(var k = 0;k<this.modes.length; k++){
+        this.eventToModes(k);
+      }
+      this._root.querySelector(".wheel").querySelector("webaudio-slider").addEventListener("change",(e)=>{this._plug.setParam("wheel", e.target.value)});
+      this._root.querySelector(".wheel").querySelector("webaudio-slider").addEventListener("mouseup",(e)=>{this._root.querySelector(".wheel").querySelector("webaudio-slider").value = 50});
+
+      // ring need an onchange and not on-input
+      // this._root.querySelector("#ringmodulation").addEventListener('change',(e) =>this._plug.setParam('ringmodulation',e.target.value));
+    }
+
+    eventToKnob(rank) {
+      this.knobs[rank].querySelector("webaudio-knob").addEventListener('input', (e) =>
+        this._plug.setParam(this.knobs[rank].id, e.target.convValue));
+    }
+    eventToSlide(rank) {
+      this.slides[rank].querySelector("webaudio-slider").addEventListener('change', (e) =>
+        this._plug.setParam(this.slides[rank].id, e.target.convValue));
+    }
+    eventToModes(rank) {
+        this.modes[rank].querySelector("webaudio-switch").addEventListener('change', (e) =>{
+        if(this.modes[rank].querySelector("webaudio-switch").value == 1){
+          this._plug.setParam("mode", this.modes[rank].id);
+          for (let l = 0;l<this.modes.length;l++) {
+            console.log()
+            if(this.modes[l] !=this.modes[rank]){
+              this.modes[l].querySelector("webaudio-switch").value = 0;
+            }
+          }
+        }
+      });
+    }
+
+    setViewer() {
+      this.freqviewWrap = this._root.querySelector("#freqview");
+      this.view = new FrequencyViewer(this._plug.context, this._plug.analyser);
+      this.freqviewWrap.appendChild(this.view)
+
+    }
+    setResources() {
+      //Set up the background img & style
+      var background = this._root.querySelector("img");
+      background.src = this._plug.URL + '/assets/grey.png';
+      background.style = 'border-radius : 5px;'
+     // Setting up the knobs imgs, those are loaded from the assets
+      this._root.querySelectorAll(".knob").forEach((knob) => {
+
+        knob.querySelector("webaudio-knob").setAttribute('src', this._plug.URL + '/assets/Res.png');
+      });
+      this._root.querySelectorAll('.modebutton').forEach((button) => {
+        console.log(button);
+        button.querySelector("webaudio-switch").setAttribute('src', this._plug.URL + '/assets/modechooser.png');
+      })
+      // Setting up the switches imgs, those are loaded from the assets
+      //this._root.querySelector("#switch1").querySelector("webaudio-switch").setAttribute('src', this._plug.URL + '/assets/switch_1.png');
+    }
+
+
+    setKeyboard() {
+
+      var settings = {
+        id: 'keyboard',
+        width: 500,
+        height: 90,
+        startNote: 'C1',
+        whiteNotesColour: '#fff',
+        blackNotesColour: '#000',
+        borderColour: '#000',
+        activeColour: '#00ffed',
+        octaves: 3
+      };
+      var tmp = this._root.querySelector("#keyboard")
+      this._root.querySelector("#keyboard").addEventListener("mousedown",(e)=>{e.stopPropagation()});
+
+      
+      this.keyboard = new QwertyHancock(settings, this._root);
+
+      this.keyboard.keyDown = (note, frequency) => {
+        //console.log(frequency);
+        this._plug.noteOn(frequency + 32);
+      };
+
+      this.keyboard.keyUp = (note, frequency) => {
+        this._plug.noteOff(frequency + 32);
+
+      };
+
+
+    }
+
+    setSwitchListener() {
+      console.log("setswitch");
+      this._root.querySelector("#switchDelay").querySelector("webaudio-switch").addEventListener('change', (e) => {
+        if (this.isDelayOn) this.bypassDelay()
+        else this.reactivateDelay();
+        this.isDelayOn = !this.isDelayOn;
+      });
+    }
+
+
+
+    bypassDelay() {
+      this._plug.setParam("delay", "disable");
+    }
+    reactivateDelay() {
+      this._plug.setParam("delay", "enable");
+    }
+
+    SelectMidi(n) {
+      this._root.querySelector('#midiport').selectedIndex = n + 1;
+      this.currentPort = n;
+    }
+
+    InitMidi() {
+      if (navigator.requestMIDIAccess) {
+        navigator.requestMIDIAccess().then(
+          (access) => {
+            console.log("====> MIDI ready.");
+            setTimeout(() => {
+              var it = access.inputs.values();
+              for (var i = it.next(); !i.done; i = it.next()) {
+                var e = document.createElement("option");
+                e.innerHTML = i.value.name;
+                this._root.querySelector('#midiport').appendChild(e);
+                this.midiPort.push(i.value);
+              }
+              if (this.midiPort.length > 0) this.SelectMidi(this.midiPort.length - 1);
+            }, 10);
+          }, () => {
+            console.log("MIDI is not available.");
+          }
+        );
+      }
+      webAudioControlsMidiManager.addMidiListener(event => {
+        var data = event.data;
+        var channel = data[0];
+        var controlNumber = data[1];
+        var value = data[2];
+        if (channel != 248 && channel != 254) {
+          //console.log("Midi event hook: data:[" + data + "] channel:" + data[0] + " cc:" + controlNumber + " value:" + value);
+        }
+        switch (channel & 0xf0) {
+          case 0x90:
+            this._plug.noteOn(controlNumber);
+            return;
+          case 0x80:
+            this._plug.noteOff(controlNumber);
+
+            return;
+        }
+      });
+
+    };
+
+  }
+  // Register the x-custom element with the browser
+
+  try {
+    console.log("Element defined");
+    customElements.define('wasabi-minilogue', MinilogueGui);
+  } catch (error) {
+    console.log(error);
+    console.log("Element already defined");
+  }
+
+
+  createMinilogue = (plug) => {
+    let elem = new MinilogueGui(plug);
+    return elem;
+  }
+</script>

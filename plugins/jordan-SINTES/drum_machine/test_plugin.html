@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="description" content="Create custom drum beats with a few clicks.  Choose from 15 drum kits and 26 effects, and adjust the pitch of each drum.  Save and share your beats… rock on!">
+    <title>Test Plugin</title>
+
+    
+
+    <script src="https://cwilso.github.io/AudioContext-MonkeyPatch/AudioContextMonkeyPatch.js"></script>
+
+    <!-- Set up Web MIDI polyfill -->
+    
+</head>
+
+<script src="./../../sdk/WebAudioSDK.js"></script>
+<script src="./drumMachine/main.js"></script>
+
+
+<body>
+    <audio src="./../../BasketCaseGreendayriffDI.mp3" id="soundSample" controls loop></audio>
+</body>
+
+<script>
+
+	var ctx = new AudioContext();
+    var player = document.getElementById("soundSample");
+   
+    player.onplay = () => 
+    {
+        ctx.resume().then(() => 
+        {
+			console.log('Playback resumed successfully');
+		});
+	}
+	var mediaSource = ctx.createMediaElementSource(player);
+
+    var pluginURL = "./drumMachine"; 
+	var plugin = new WasabiDrumMachine(ctx, pluginURL);
+
+   plugin.load().then((node) => 
+    {
+        console.log("node", node);
+        plugin.loadGui().then((elem) => 
+        {
+            console.log("elem", elem);
+            document.body.appendChild(elem);
+        });
+        
+		mediaSource.connect(node);
+		node.connect(ctx.destination);
+	});
+    
+   
+	
+   
+
+</script>
+
+</html>

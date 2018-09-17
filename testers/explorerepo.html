@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>empty host</title>
+</head>
+<meta http-equiv="origin-trial" data-feature="AudioWorklet" data-expires="2018-03-06" content="AuqouVYOpuBqGUbQMwRTvnR9R5K1T0u5vw5KUqvZQSNox/gKa/dGig1VWcPYXUzuHN1OtTijH+lhVjg8has9RggAAABseyJvcmlnaW4iOiJodHRwczovL3dhc2FiaS5pM3MudW5pY2UuZnI6NDQzIiwiZmVhdHVyZSI6IkF1ZGlvV29ya2xldCIsImV4cGlyeSI6MTUyMDI5NDQwMCwiaXNTdWJkb21haW4iOnRydWV9">
+
+<body>
+  <audio src="./../BasketCaseGreendayriffDI.mp3" id="soundSample" controls loop></audio>
+  <p></p>
+
+</body>
+<script>
+  var ctx = new AudioContext();
+  var player = document.getElementById("soundSample");
+  var mediaSource = ctx.createMediaElementSource(player);
+  var lastPlugin;
+  var pluginArray = [];
+
+  var repo = {
+    "name": "mainRepo",
+    "root": "optional_abs_url",
+    "plugs": {
+      "zitaRev": "./../Faust/ZitaRevV2", // THERE SHOULD NOT BE TWICE THE SAME URL, as the same class would ne imported twice. MUST PREVENT THIS
+      "zitaRev2": "./../Faust/ZitaRevV3",
+      "thruFlanger": "./../Oliver-Larkin/ThruZeroFlanger2", // THERE SHOULD NOT BE TWICE THE SAME URL, as the same class would ne imported twice. MUST PREVENT THIS
+      "thruFlanger2": "./../Oliver-Larkin/ThruZeroFlanger2",
+      "quadrafuzz":"./../WASABI/QuadraFuzz2",
+      "quadrafuzz2":"./../WASABI/QuadraFuzz2"
+    }
+  }
+
+  // On scanne le repo
+  Object.keys(repo.plugs).map((key) => {
+
+    let baseURL = repo.plugs[key];
+    let MetadataFileURL = baseURL + "/main.json";
+    let scriptURL = baseURL + "/main.js";
+
+    // console.log("Decouvert plugin : " + key + " baseurl : " + baseURL);
+
+    // get the main.json for this plugin
+    let metadata;
+
+    fetch(MetadataFileURL)
+      .then(responseJSON => {
+        return responseJSON.json();
+      }).then(metadata => {
+        let className = metadata.vendor + metadata.name;
+        showThumbnail(baseURL, metadata.thumbnail, className);
+      }).catch((e) => {
+        console.log(e);
+      });
+  })
+
+  /* This function adds a clickable thumbnail to the document.
+     When a thumbnail is clicked it instanciate the plugin and add its GUI to the document
+  */
+  function showThumbnail(baseURL, thumbnaiFileName, className) {
+    let img = document.createElement("img");
+    img.src = baseURL + "/" + thumbnaiFileName;
+    // Use the dataset API to store the className. Useful for getting it back in the listener
+    img.dataset.className = className;
+    img.width = 100;
+
+    img.addEventListener("click", (evt) => {
+      //console.log("plugin clicked: " + evt.target.dataset.className);
+      addPlugin(className, baseURL);
+    })
+    document.body.append(img);
+  }
+
+  // useful function for avoiding inserting twice the same script src= tag
+  function scriptExists(url) {
+    return document.querySelectorAll(`script[src="${url}"]`).length > 0;
+  }
+
+  // Instanciate a plugin with its GUI. Avoids inserting twice the script tag
+  function addPlugin(className, baseURL) {
+    let scriptURL = baseURL + "/main.js";
+
+    if (scriptExists(scriptURL)) {
+      //script exists
+      console.log("SCRIPT EXISTS WE JUST INSTANCIATE THE PLUGIN");
+      loadPlugin(className, baseURL);
+      return;
+    }
+
+    console.log("SCRIPT DOES NOT EXIST, ADD A SCRIPT SRC=, THEN INSTANCIATE PLUGIN")
+
+    // if we are here this means that the script is not present. Add it to the document
+    let script = document.createElement("script");
+    script.src = scriptURL;
+
+    script.onload = function () {
+      // Once the script has been loaded instanciate the plugin
+      loadPlugin(className, baseURL);
+    }
+
+    // will be executed before the onload above...
+    document.head.appendChild(script);
+  }
+
+  function loadPlugin(className, baseURL) {
+    // The script has been loaded, thus, the class has been defined.
+    // We can instanciate the audio processor
+    var plugin = new WAPlugin[className](ctx, baseURL);
+    console.log(plugin);
+
+    plugin.load().then((node) => { 
+      // loads and initialize the audio processor part
+      // Then use the factory to create the HTML custom elem that holds the GUI
+      // The loadGUI method takes care of inserting the link rel=import part,
+      // not doing it twice, and associate the node with its GUI.
+
+      plugin.loadGui().then((elem) => {
+        console.log("ADDING PLUGIN");
+        // show the GUI of the plugn, the audio part is ready to be used
+        document.body.appendChild(elem);
+        //mediaSource.connect(node);
+        //node.connect(ctx.destination);
+         // Add node to the chain of plugins
+        chainPlugin(node);
+      });
+    });
+
+
+    // CA BUGGE : des qu'on insere deux instances ca merde...
+    // deja la seconde instance est activee par defaut
+    // puis on dirait qu'il y a le dernier connect qui connecte
+    // la sortie sur l'entree du meme plugin, ca fait du feedback
+    function chainPlugin(plugin) {
+      //plugin.setParam("/zitaRev/bypass", 1);
+
+      // insert the new plugin at the end of the array
+      pluginArray.push(plugin);
+      console.log(pluginArray);
+    
+      // rebuild the chain, first disconnect mediaSource
+      mediaSource.disconnect();
+
+      for(let i = 0; i < pluginArray.length; i++) {
+        let currentPlugin = pluginArray[i];
+        // be sure it's not connected
+
+        // currentPlugin.disconnect();
+
+        // to handle mix with purejs and AW
+
+        if(currentPlugin instanceof AudioWorkletNode) currentPlugin.disconnect();
+        else currentPlugin.getOutput(0).disconnect();
+
+        if(i === 0) {
+          // first plugin
+          // mediaSource.connect(currentPlugin);
+
+        // to handle mix with purejs and AW
+
+          if(currentPlugin instanceof AudioWorkletNode) mediaSource.connect(currentPlugin);
+          else mediaSource.connect(currentPlugin.getInput(0));
+        } else {
+          //connect previous plugin to current one
+
+          
+          // pluginArray[i-1].connect(currentPlugin);
+
+          // to handle mix with purejs and AW
+          if(currentPlugin instanceof AudioWorkletNode && pluginArray[i-1] instanceof AudioWorkletNode) pluginArray[i-1].connect(currentPlugin);
+           else if(currentPlugin instanceof AudioWorkletNode )pluginArray[i-1].getOutput(0).connect(currentPlugin);
+           else if(pluginArray[i-1] instanceof AudioWorkletNode )pluginArray[i-1].connect(currentPlugin.getInput(0));
+           else pluginArray[i-1].getOutput(0).connect(currentPlugin.getInput(0));
+          
+        }
+      }
+
+      // connect last plugin to destination
+      pluginArray[pluginArray.length -1].connect(ctx.destination);
+
+      /*
+
+      if (lastPlugin !== undefined) {
+        // deconnect lastPlugin from destination
+        lastPlugin.disconnect();
+        // insert current plugin at the end of the chain
+        console.log("PLUGIN=LASTPLUGIN: " + (plugin === lastPlugin))
+        lastPlugin.connect(plugin);
+      } else {
+        mediaSource.connect(plugin);
+      }
+      plugin.connect(ctx.destination);
+      lastPlugin = plugin;
+      */
+    }
+  }
+
+</script>
+
+</html>

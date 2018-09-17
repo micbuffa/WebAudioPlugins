@@ -1,0 +1,8 @@
+{
+    "documentation": "...",
+    "name": "MetalMachine",
+    "thumbnail": "assets/metal.png",
+    "vendor": "Wasabi",
+    "category":"AmpSim",
+    "version": "1.0"
+  }
