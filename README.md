@@ -1,6 +1,8 @@
 # WebAudioPlugins (WAPs)
 ## How to use this repo
 Clone this repo and open a web server on the root dir of the repo. Then you can click on any html file that starts with "test" in order to see the examples in action. Explanations below... Don't forget to see the plugins/tutorial that comes with a Readme that is a quickstart guide about how to write your first WebAudio plugins.
+## Examples that use WebAudio Plugins
+You can try the [The PedalBoard Project](https://wasabi.i3s.unice.fr/dynamicPedalboard/) for example, that enables loading and connecting a large set of different plugins and comes with different presets for real time guitar playing, keyboard playing etc.
 ## Introduction: Why WebAudio needs a plugin open standard
 The Web Audio API includes a set of unit generators called AudioNodes for graph-based audio DSP algorithms. The standard AudioNodes allow for developing a range of web applications that require audio engines that go beyond simple playback. The recent addition of the AudioWorkletNode provides an efficient way to implement custom low-level processing, significantly increasing the possibilities of this technology. There are many different apps created with the Web Audio API that run independently, however there is no standard way to make them interoperable i.e. take a drum machine developed by X, load it into an application developed by Y and apply audio processing developed by Z. In the native audio world, these interchangeable units are called "audio plug-ins" and applications that can use them are known as "hosts" which are typically DAWs.
 ## First draft version: we target a minimal set of features plugins and hosts should take into account
@@ -24,7 +26,7 @@ A Web Audio Plug-in standard should be able to support multiple approaches in te
 
 
 ## A Draft Specification
-The goal of our [draft Web Audio plug-in API proposal](xxx) is to devise a minimal set of mechanisms that allow interoperation between our independently developed frameworks. A high level overview of the proposal is given below.
+The goal of our draft Web Audio plug-in API proposal is to devise a minimal set of mechanisms that allow interoperation between our independently developed frameworks. A high level overview of the proposal is given below.
 
 A WAP extends AudioNode (or AudioWorkletNode) and thus inherits their familiar properties and methods. This ensures interoperation with standard Web Audio API nodes and applications built on top of the Web Audio graph. Integration with Web Midi is provided by MIDIPort members.
 
