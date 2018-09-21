@@ -6,7 +6,7 @@
 </head>
 <meta http-equiv="origin-trial" data-feature="AudioWorklet" data-expires="2018-03-06" content="AuqouVYOpuBqGUbQMwRTvnR9R5K1T0u5vw5KUqvZQSNox/gKa/dGig1VWcPYXUzuHN1OtTijH+lhVjg8has9RggAAABseyJvcmlnaW4iOiJodHRwczovL3dhc2FiaS5pM3MudW5pY2UuZnI6NDQzIiwiZmVhdHVyZSI6IkF1ZGlvV29ya2xldCIsImV4cGlyeSI6MTUyMDI5NDQwMCwiaXNTdWJkb21haW4iOnRydWV9">
 <link rel="stylesheet" href="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/mocha/mocha.css">
-<script src="./../sdk/WebAudioSDK.js"></script>
+<script src="../sdk/WebAudioSDK.js"></script>
 
 <style>
   #inputs {
@@ -66,8 +66,8 @@
 </style>
 
 <body>
-  <audio src="./../BasketCaseGreendayriffDI.mp3" id="soundSample" controls loop></audio>
-  <input id="repoUrl" value="https://wasabi.i3s.unice.fr/WebAudioPluginBank/repository.json" size="200" style="width :400px">
+  <audio src="../assets/audio/BasketCaseGreendayriffDI.mp3" id="soundSample" controls loop></audio>
+  <input id="repoUrl" value="../examplePluginRepository/repository.json" size="200" style="width :400px">
   <button id="submit">Explore Repository and test your modules</button>
   <p></p>
   <p></p>
@@ -85,11 +85,7 @@
       <label class="urlRepo" value="https://webaudiomodules.org/repository.json">
         https://webaudiomodules.org/repository.json</label>
       <p></p>
-
-
-
     </div>
-
   </div>
   <div id="title"></div>
   <br>
@@ -120,16 +116,14 @@
 
     console.log(document.querySelectorAll("#appearZone").firstChild);
     document.querySelectorAll(".urlRepo").forEach(elem => {
-    elem.onclick = () => {
-      input.value = elem.innerHTML;
-    }
+      elem.onclick = () => {
+        input.value = elem.innerHTML;
+      }
     })
 
     try {
-
       process(JSON.parse(localStorage.repo), pluginArray, mediaSource);
       addPlugin(JSON.parse(localStorage.plugin), JSON.parse(localStorage.url));
-
     } catch (error) {
       console.log(error);
       console.log("First run");
@@ -140,7 +134,9 @@
       document.querySelector("#main").innerHTML = "";
       document.querySelector("#mocha").innerHTML = "";
       document.body.querySelector("#title").innerHTML = "";
-      explore(input.value).then((repo) => { process(repo, getContext(), pluginArray, mediaSource) });
+      explore(input.value).then((repo) => {
+        process(repo, getContext(), pluginArray, mediaSource)
+      });
       localStorage.clear();
 
     }
@@ -241,7 +237,8 @@
         // show the GUI of the plugn, the audio part is ready to be used
 
         document.body.querySelector("#appearZone").appendChild(elem);
-        document.querySelector("#appearZone").firstChild.setAttribute('style', 'margin-left:auto; margin-right:auto');
+        document.querySelector("#appearZone").firstChild.setAttribute('style',
+          'margin-left:auto; margin-right:auto');
 
       });
       document.body.querySelector("#title").innerHTML = "";
@@ -300,7 +297,9 @@
         expect(plugin.getMetadata()).to.exist;
       });
       it('the getMetadata() function should return a json object', function () {
-        plugin.getMetadata().then((res) => { expect(res).to.not.be.empty });
+        plugin.getMetadata().then((res) => {
+          expect(res).to.not.be.empty
+        });
       });
     });
 
@@ -368,8 +367,6 @@
 
 
   }
-
-
 </script>
 
 </html>

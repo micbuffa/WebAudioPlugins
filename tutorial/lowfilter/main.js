@@ -4,7 +4,7 @@ window.Lowfilter = class Lowfilter extends WebAudioPluginCompositeNode {
     super(ctx, URL, options)
     /*    ################     API PROPERTIES    ###############   */
 
-    this.addParam({ name: 'cutoff', defaultValue: 1500, minValue: 30, maxValue: 8000 });
+    this.addParam({ name: 'cutoff', defaultValue: 1500, minValue: 30, maxValue: 2800 });
     this.addParam({name:'resonance',defaultValue: 0.1, minValue: 0, maxValue: 30 })
     super.setup();
   }

@@ -1,0 +1,25 @@
+{
+    "name": "WAP repo number 1",
+    "root": "optional_abs_url",
+    "plugs": {
+      "zitaRev": "https://wasabi.i3s.unice.fr/WebAudioPluginBank/Faust/ZitaRevV3",
+      "quadrafuzz":"https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/QuadraFuzz3",
+      "blipper":"https://wasabi.i3s.unice.fr/WebAudioPluginBank/Oliver-Larkin2/Blipper",
+      "dualpitchshifter":"https://wasabi.i3s.unice.fr/WebAudioPluginBank/Oliver-Larkin2/DualPitchShifter",
+      "stereofreqshifter":"https://wasabi.i3s.unice.fr/WebAudioPluginBank/Oliver-Larkin2/StereoFrequencyShifter",
+      "weirdphaser":"https://wasabi.i3s.unice.fr/WebAudioPluginBank/Oliver-Larkin2/WeirdPhaser",
+      "thruzeroflanger":"https://wasabi.i3s.unice.fr/WebAudioPluginBank/Oliver-Larkin2/ThruZeroFlanger",
+      "pingpongdelay":"https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay3",
+      "stereoflanger":"https://wasabi.i3s.unice.fr/WebAudioPluginBank/Mike-AUBENAS/StereoFlanger",
+      "channelmixeur":"https://wasabi.i3s.unice.fr/WebAudioPluginBank/Mike-AUBENAS/MixingConsole/ChannelMixer",
+      "mixer":"https://wasabi.i3s.unice.fr/WebAudioPluginBank/Mike-AUBENAS/MixingConsole/Mixer",
+      "minilogue":"https://wasabi.i3s.unice.fr/WebAudioPluginBank/Etev/Minilogue",
+      "wah":"https://wasabi.i3s.unice.fr/WebAudioPluginBank/jordan-SINTES/wah_effect/WahVox",
+      "CleanMachine":"https://wasabi.i3s.unice.fr/WebAudioPluginBank/Buffa/CleanMachine",
+      "DrumMachine":"https://wasabi.i3s.unice.fr/WebAudioPluginBank/jordan-SINTES/drum_machine/drumMachine",
+      "DistoMachine": "https://wasabi.i3s.unice.fr/WebAudioPluginBank/jordan-SINTES/disto_machine/disto",
+      "Metalachine": "https://wasabi.i3s.unice.fr/WebAudioPluginBank/Buffa/MetalMachine/metal",
+      "TunerMachine": "https://wasabi.i3s.unice.fr/WebAudioPluginBank/jordan-SINTES/tuner_machine/tuner",
+      "DeadGate":"https://wasabi.i3s.unice.fr/WebAudioPluginBank/Faust/DeadGate"
+    }
+  }

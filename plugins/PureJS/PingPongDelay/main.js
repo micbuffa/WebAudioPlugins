@@ -13,7 +13,7 @@ window.PingPongDelay = class PingPongDelay extends WebAudioPluginCompositeNode {
     this.addParam({name: 'time',defaultValue: 0.5, minValue: 0, maxValue: 1 });
     this.addParam({name: 'mix',defaultValue: 0.5, minValue: 0, maxValue: 1 });
 
-    // To have a on/off management
+    // Bypass feature. Useful for swithing the plugin on and off
     Object.assign({"status": "disable"},this.params);
     super.setup();
   }
