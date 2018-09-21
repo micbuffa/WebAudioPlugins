@@ -249,7 +249,7 @@ Now the WAP is ready to be tested. Lets create an HTML file and test it. Here is
 </html>
 ```
 
-###If you want to submit your WAP, publish it on npm and let us know its name :
+### If you want to submit your WAP, publish it on npm and let us know its name :
 
 * Create an account on [npmjs](https://www.npmjs.com/signup)
 * open a terminal at your WAP root, bind the session by typing `npm login https://www.npmjs.com/~usrname`
