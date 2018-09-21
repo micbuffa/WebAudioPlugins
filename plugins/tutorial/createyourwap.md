@@ -52,9 +52,9 @@ window.PluginName = class PluginName extends WebAudioPluginCompositeNode {
   }
 }
 ```
-It's inherited from the WebAudioPluginCompositeNode class which manages inputs,outputs & params. Inheriting from this class makes a plugin made of a grazph of node behave like a single node (i.e you can use connect/disconnect, addParams)
+It's inherited from the WebAudioPluginCompositeNode class which manages inputs,outputs & params. Inheriting from this class makes a plugin made of a graph of node behave like a single node (i.e you can use connect/disconnect, addParams)
 
-Then you just have to add your params as you can see in the code snippet above.  The SDK will build a key-value _**`descriptor`**_ and a _**`params`**_ object which will be useful later. Basically we add a param when the value of an audioparam is subject to change (ex : oscillator type property, the frequency of a filter etc.).
+Then you just have to add your params as you can see in the code snippet above. The SDK will build a key-value _**`descriptor`**_ and a _**`params`**_ object which will be useful later. Basically we add a param when the value of an audioparam is subject to change (ex : oscillator type property, the frequency of a filter etc.).
 
 If some of yours params don't fit the descriptor template (default value, min, max, etc) you can define them using a syntax like this: `Object.assign({ "bypass": "true" }, this.params)`.
 
@@ -83,10 +83,11 @@ We recommand to code something like that:
 
 ```js
   setParam(key, value) {
+    console.log("key : ",key," value : ", value);
     try {
       this[key] = value;
     } catch (error) {
-      console.warn("this plugin does not implement this param")
+      console.warn("this plugin does not implement the param : ", key);
     }
   }
 
@@ -99,19 +100,19 @@ We recommand to code something like that:
   }
 ```
 
-We are done with the basic audio processing part. A last step consis in creating a factory object that will be in charge of loading dynamically the plugin code through its URI, and instanciate it (most of these operations are done under the hood in the WAP SDK classes):
+We are done with the basic audio processing part. A last step consist in creating a factory object that will be in charge of loading dynamically the plugin code through its URI, and instanciate it (most of these operations are done under the hood in the WAP SDK classes):
 
 ```js
 window.VendorNamePluginName = class VendorNamePluginName extends WebAudioPluginFactory {
 
-  constructor(context, baseUrl) {
-    super(context, baseUrl);
+  constructor(context, baseUrl,options) {
+    super(context, baseUrl, options);
   }
 
 }
 ```
 
-The  **WebAudioPluginFactory** class contains methods that fetch and create your WAP. If you are curious, you can give a loot at the implementation of the load method of the WebAudioPluginFactory class located in the webaudioSDK.js file.
+The  **WebAudioPluginFactory** class contains methods that fetch and create your WAP. If you are curious, you can give a look at the implementation of the load method of the WebAudioPluginFactory class located in the webaudioSDK.js file.
 
 
  ###  *GUI*  main.html
@@ -130,7 +131,7 @@ A GUI is optionnal for a WAP, but here is how you can build our own using W3C We
     }
   </style>
   <div id="cutoff">
-     <input type="range" min="30" max="22000" value="1500"/>
+     <input type="range" min="30" max="2800" value="1500"/>
   </div>
 </template>
  ``` 
@@ -178,7 +179,7 @@ let lowfiltertemp = document.currentScript.ownerDocument.querySelector('template
     this._root.querySelector("#cutoff").querySelector("input").addEvenetListener("input", (e)=>{this._plug.setParam("cutoff", e.target.value)})
   }
 ```
-**if you choose to use webaudio-knobs**, set the src attribute:
+**if you choose to use webaudio-knobs**, set the src attribute to load its GUI:
 
 ```js
 this._root.querySelector("#cutoff").querySelector("webaudio-knob").setAttribute('src', this._plug.URL + '/assets/knobFile.png');
