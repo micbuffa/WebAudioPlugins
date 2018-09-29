@@ -1,6 +1,6 @@
-# Create your own WAP : 
+﻿# Create your own WAP :
 
-In this tutorial you'll learn how to create your own WAP, with its GUI, and mate it available.
+In this tutorial you'll learn how to create your own WAP, with its GUI, and make it available.
 
 ### Architecture
 ```
@@ -18,7 +18,7 @@ wapName
 
 ###  *Metadata* main.json
 
-Must contain at least name, category, vandor & thumbnail to interract correctly with others WAP tools.
+Must contain at least name, category, vendor name & thumbnail to interact correctly with other WAP tools.
 
 ```json
   {
@@ -30,14 +30,14 @@ Must contain at least name, category, vandor & thumbnail to interract correctly 
     "version": "1.0"
   }
 ```
-Some of our applications fetch this file first and uses those fields to prepare the WAP launch.
+Some of our applications fetch this file first and use those fields to prepare the WAP launch.
 
  
  ###  *Audio Node(s)*  main.js 
 
  Define and build the audio graph of your WAP.
 
-**First** you have to create 2 class inherited from the webaudioSDK:
+**First** you have to create 2 classes inherited from the webaudioSDK:
 
 The first class is the actual Audio Node
 ```js
@@ -52,12 +52,12 @@ window.PluginName = class PluginName extends WebAudioPluginCompositeNode {
   }
 }
 ```
-It's inherited from a CompositeNode which manages inputs,outputs & params.
+It's inherited from a CompositeNode which manages inputs, outputs & params.
 Here you just have to add your params as you can see in the snippet and the SDK will build a key-value _**`descriptor`**_ and a _**`params`**_ object which will be useful later. Basically we add a param when the value of an audioparam is made to change (ex : type of an oscillator, frequency of a filter).
 
 If some of yours params don't fit the descriptor you can add it like `Object.assign({ "status": "disable" }, this.params)` in the constructor.
 
-The SDK has some tools like : **descriptor** getter, **numberOfOutputs** getter that you can override if you have features to add. It also make available default I/O called respectively `this._input` and `this._output` that are by default on `this.inputs[Ø]` and `this.outputs[0]` tabs that you can fill with additionnal I/O's. 
+The SDK has some tools like : **descriptor** getter, **numberOfOutputs** getter that you can override if you have features to add. It also makes available default I/O called respectively `this._input` and `this._output` that are by default on `this.inputs[Ø]` and `this.outputs[0]` tabs that you can fill with additionnal I/O's.
 
 Let's jump to the audio graph : you need to implements 2 methods :
 ```js
@@ -77,7 +77,7 @@ You are free to have your own workflow but those method are called by default in
       this.lpfilter.connect(this._output);
     };
 ```
-Now the params are created and the audio nodes too, you just have to bind it. We rcommand something like that : 
+Now the params are created and the audio nodes too, you just have to bind it. We recommend something like that :
 
 ```js
   setParam(key, value) {
@@ -116,7 +116,7 @@ The class **WebAudioPluginFactory** contains methods to fetch and load your WAP.
 
  The SDK contains a **loadGUI()** method that link the **main.html** file.
 
- GUI is optionnal for a WAP, but here is how we build our own : 
+ GUI is optionnal for a WAP, but here is how we build our own :
 
  **First** define an html/css template
 
@@ -132,7 +132,7 @@ The class **WebAudioPluginFactory** contains methods to fetch and load your WAP.
   </div>
 </template>
  ``` 
-We also recommand to use the [g200k webaudio controls](https://github.com/g200kg/webaudio-controls/tree/master/2.0) library in its Web component version to have more custom options. For this you have to add this link on your `main.html` file : 
+We also recommend to use the [g200k webaudio controls](https://github.com/g200kg/webaudio-controls/tree/master/2.0) library in its Web component version to have more custom options. For this you have to add this link on your `main.html` file :
 ```html
 <script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webaudio-controls.js"></script>
 ```
@@ -192,7 +192,7 @@ try {
 		console.log("Element already defined");
 	}
 /**
-* Gui factory, called from the SDK. 
+* Gui factory, called from the SDK.
 * The name must be create+MyModule
 */
 createMyPlugin = (plug) => {
@@ -246,7 +246,7 @@ Now the WAP is ready to be tested. Lets create a HTML file and test this minimal
 
 You can now affect the audioplayer with your WAP! Congrats!
 
-###If you want to submit your WAP, publish it on npm and let us know its name :
+### If you want to submit your WAP, publish it on npm and let us know its name :
 
 * Create an account on [npmjs](https://www.npmjs.com/signup)
 * open a terminal at your WAP root, bind the session by typing `npm login https://www.npmjs.com/~usrname`
