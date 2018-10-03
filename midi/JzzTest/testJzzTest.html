@@ -9,16 +9,18 @@
 <script src="../JZZ/JZZ.input.Kbd.js"></script>
 <script src="../JZZ/JZZ.synth.OSC.js"></script>
 <script src="main.js"></script>
+<script src="../../plugins/PureJS/GuitarTuner/main.js"></script>
+<script src="../../plugins/PureJS/PingPongDelay/main.js"></script>
 
 <body>
     <audio src="../../assets/audio/BasketCaseGreendayriffDI.mp3" id="soundSample" controls loop crossorigin></audio>
 </body>
 
 <script>
-  
   var ctx = new AudioContext();
-  var pluginURL = ".";
-  var plugin = new JazzSoftJzzTest(ctx, pluginURL);
+  var piano = new JazzSoftJzzTest(ctx, '.');
+  var tuner = new WasabiTunerMachine(ctx, '../../plugins/PureJS/GuitarTuner');
+  var delay = new WasabiPingPongDelay(ctx, '../../plugins/PureJS/PingPongDelay');
 
   var player = document.getElementById("soundSample");
   player.onplay = () => {
@@ -28,14 +30,15 @@
   }
   var mediaSource = ctx.createMediaElementSource(player);
 
-  plugin.load().then((node) => {
-
-    plugin.loadGui().then((elem) => {
-      document.body.appendChild(elem);
-    });
-    mediaSource.connect(node);
-    node.connect(ctx.destination)
-  })
+  Promise.all([piano.load(), tuner.load(), delay.load()]).then((nnn) => {
+    piano.loadGui().then((elem) => { document.body.appendChild(elem); });
+    tuner.loadGui().then((elem) => { document.body.appendChild(elem); });
+    delay.loadGui().then((elem) => { document.body.appendChild(elem); });
+    mediaSource.connect(nnn[0]);
+    nnn[0].connect(nnn[1]);
+    nnn[1].connect(nnn[2]);
+    nnn[2].connect(ctx.destination);
+  });
 </script>
 
 </html>

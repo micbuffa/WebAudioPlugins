@@ -1,20 +1,11 @@
-<script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webaudio-controls.js"></script>
-<script>WebAudioControlsOptions = { useMidi: 1, };</script>
 <template>
   <style>
     :host {
-      display: block;
+      display: inline-block;
       background-color: #AB2E24;
-      //width: 100px;
-      //height: 100px;
       border-radius: 10px;
       position: relative;
-      box-shadow: 4px 5px 6px rgba(0, 0, 0, 0.7),
-      inset -2px -2px 5px 0px rgba(0, 0, 0, 0.2),
-      inset 3px 1px 1px 4px rgba(255, 255, 255, 0.2),
-      1px 0px 1px 0px rgba(0, 0, 0, 0.9),
-      0 2px 1px 0 rgba(0, 0, 0, 0.9),
-      1px 1px 1px 0px rgba(0, 0, 0, 0.9);
+      padding: 5px;
     }
   </style>
 
@@ -34,13 +25,10 @@
       // bind shadow to the class and clone the template into it
       this._root = this.attachShadow({ mode: 'open' });
       this._root.appendChild(jzztesttemp.content.cloneNode(true));
-      JZZ.input.Kbd({ at: this._root.querySelector('#piano') });
-      //this.setUp();
+      var piano = JZZ.input.Kbd({ at: this._root.querySelector('#piano') });
+      var synth = JZZ.synth.OSC();
+      piano.connect(synth);
     }
-
-//    setUp() {
-//      JZZ.input.Kbd({ at: this._root.querySelector('#piano') });
-//    }
   }
 
   try {
