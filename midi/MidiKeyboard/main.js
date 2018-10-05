@@ -1,4 +1,4 @@
-window.MidiKeyboard = class Lowfilter extends WebAudioPluginCompositeNode {
+window.MidiKeyboard = class MidiKeyboard extends WebAudioPluginCompositeNode {
   constructor(ctx, URL, options) {
     super(ctx, URL, options)
     super.setup();
