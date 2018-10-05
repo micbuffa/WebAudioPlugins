@@ -1,0 +1,45 @@
+<template>
+  <style>
+    :host {
+      display: inline-block;
+      background-color: #acf;
+      box-shadow: 4px 5px 6px rgba(0, 0, 0, 0.7), inset -2px -2px 5px 0px rgba(0, 0, 0, 0.2), inset 3px 1px 1px 4px rgba(255, 255, 255, 0.2), 1px 0px 1px 0px rgba(0, 0, 0, 0.9), 0 2px 1px 0 rgba(0, 0, 0, 0.9), 1px 1px 1px 0px rgba(0, 0, 0, 0.9);
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      position: relative;
+      padding: 5px;
+    }
+  </style>
+  <div id="piano"></div>
+</template>
+
+<script>
+  let MidiKeyboardtemp = document.currentScript.ownerDocument.querySelector('template');
+
+  class MidiKeyboardGui extends HTMLElement {
+    constructor(plug) {
+      super();
+      this._plug = plug;
+      this._plug.gui = this;
+      // bind shadow to the class and clone the template into it
+      this._root = this.attachShadow({ mode: 'open' });
+      this._root.appendChild(MidiKeyboardtemp.content.cloneNode(true));
+      var piano = JZZ.input.Kbd({ at: this._root.querySelector('#piano') });
+      piano.connect(plug.synth);
+    }
+  }
+
+  try {
+    // Define the custom element to the browser
+    customElements.define('jazzsoft-midikeyboard', MidiKeyboardGui);
+  } catch (error) {
+    console.log(error);
+    console.log("Element already defined");
+  }
+
+  createMidiKeyboard = (plug) => {
+    let elem = new MidiKeyboardGui(plug);
+    return elem;
+  }
+
+</script>

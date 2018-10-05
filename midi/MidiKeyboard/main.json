@@ -1,7 +1,7 @@
 {
   "documentation": "...",
-  "name": "JzzTest",
-  "thumbnail": "assets/JzzTest.png",
+  "name": "MidiKeyboard",
+  "thumbnail": "assets/MidiKeyboard.png",
   "vendor": "JazzSoft",
   "category":"Test",
   "version": "1.0"
