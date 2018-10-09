@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Host that loads a plugin with its GUI</title>
+  <title>MIDI Keyboard test</title>
 </head>
 <script src="../../sdk/WebAudioSDK.js"></script>
 <script src="../JZZ/JZZ.js"></script>
@@ -22,12 +22,13 @@
   var delay = new WasabiPingPongDelay(ctx, '../../plugins/PureJS/PingPongDelay');
 
   Promise.all([piano.load(), tuner.load(), delay.load()]).then((nnn) => {
+    const [piano_, tuner_, delay_] = nnn;
     piano.loadGui().then((elem) => { document.body.appendChild(elem); });
     tuner.loadGui().then((elem) => { document.body.appendChild(elem); });
     delay.loadGui().then((elem) => { document.body.appendChild(elem); });
-    nnn[0].connect(nnn[1]);
-    nnn[1].connect(nnn[2]);
-    nnn[2].connect(ctx.destination);
+    piano_.connect(tuner_);
+    tuner_.connect(delay_);
+    delay_.connect(ctx.destination);
   });
 </script>
 
