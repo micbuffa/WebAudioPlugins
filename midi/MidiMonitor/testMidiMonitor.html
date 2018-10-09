@@ -15,7 +15,7 @@
 
 <script>
   var ctx = new AudioContext();
-  var loggr = new JazzSoftMidiLog(ctx, '.');
+  var loggr = new JazzSoftMidiMonitor(ctx, '.');
   function sendtestmsg() {
     var note = Math.floor(Math.random() * 128);
     var chan = Math.floor(Math.random() * 16);

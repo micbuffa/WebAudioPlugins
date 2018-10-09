@@ -1,4 +1,4 @@
-window.MidiLog = class MidiLog extends WebAudioPluginCompositeNode {
+window.MidiMonitor = class MidiMonitor extends WebAudioPluginCompositeNode {
 
   constructor(ctx, URL, options) {
     super(ctx, URL, options)
@@ -26,7 +26,7 @@ window.MidiLog = class MidiLog extends WebAudioPluginCompositeNode {
   }
 }
 
-window.JazzSoftMidiLog = class JazzSoftMidiLog extends WebAudioPluginFactory {
+window.JazzSoftMidiMonitor = class JazzSoftMidiMonitor extends WebAudioPluginFactory {
   constructor(context, baseUrl) {
     super(context, baseUrl);
   }
