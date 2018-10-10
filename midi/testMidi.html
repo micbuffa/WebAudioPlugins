@@ -2,8 +2,7 @@
 <html>
 
 <head>
-  <title>MIDI test</title>
-</head>
+<title>MIDI test</title>
 <script src="../sdk/WebAudioSDK.js"></script>
 <script src="JZZ/JZZ.js"></script>
 <script src="JZZ/JZZ.input.Kbd.js"></script>
@@ -13,7 +12,24 @@
 <script src="../plugins/PureJS/GuitarTuner/main.js"></script>
 <script src="../plugins/PureJS/PingPongDelay/main.js"></script>
 
+<style>
+#monitor, #tuner, #delay {
+  display: inline-block;
+  vertical-align: top;
+  margin: 5px;
+}
+#piano1, #piano2 {
+  margin: 5px;
+}
+</style>
+</head>
+
 <body>
+<div id=piano1></div>
+<div id=piano2></div>
+<div>
+<span id=monitor></span> <span id=tuner></span> <span id=delay></span>
+</div>
 </body>
 
 <script>
@@ -27,12 +43,12 @@
   Promise.all([piano1.load(), piano2.load(), monitor.load(), tuner.load(), delay.load()]).then((nnn) => {
     const [piano1_, piano2_, monitor_, tuner_, delay_] = nnn;
     piano1.loadGui().then((elem) => {
-      document.body.appendChild(elem);
-      piano2.loadGui().then((elem) => { document.body.appendChild(elem); });
+      document.getElementById('piano2').appendChild(elem);
+      piano2.loadGui().then((elem) => { document.getElementById('piano2').appendChild(elem); });
     });
-    monitor.loadGui().then((elem) => { document.body.appendChild(elem); });
-    tuner.loadGui().then((elem) => { document.body.appendChild(elem); });
-    delay.loadGui().then((elem) => { document.body.appendChild(elem); });
+    monitor.loadGui().then((elem) => { document.getElementById('monitor').appendChild(elem); });
+    tuner.loadGui().then((elem) => { document.getElementById('tuner').appendChild(elem); });
+    delay.loadGui().then((elem) => { document.getElementById('delay').appendChild(elem); });
 
     // MIDI connections
     piano1_.connectMidi(piano2_);
