@@ -24,8 +24,11 @@
       // bind shadow to the class and clone the template into it
       this._root = this.attachShadow({ mode: 'open' });
       this._root.appendChild(MidiKeyboardtemp.content.cloneNode(true));
+      //insert GUI piano between input and output nodes
       var piano = JZZ.input.Kbd({ at: this._root.querySelector('#piano') });
-      piano.connect(plug.synth);
+      plug.inputsMidi[0].disconnect(plug.outputsMidi[0]);
+      plug.inputsMidi[0].connect(piano);
+      piano.connect(plug.outputsMidi[0]);
     }
   }
 

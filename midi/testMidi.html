@@ -18,18 +18,28 @@
 
 <script>
   var ctx = new AudioContext();
-  var piano = new JazzSoftMidiKeyboard(ctx, 'MidiKeyboard');
-  var montr = new JazzSoftMidiMonitor(ctx, 'MidiMonitor');
+  var piano1 = new JazzSoftMidiKeyboard(ctx, 'MidiKeyboard');
+  var piano2 = new JazzSoftMidiKeyboard(ctx, 'MidiKeyboard');
+  var monitor = new JazzSoftMidiMonitor(ctx, 'MidiMonitor');
   var tuner = new WasabiTunerMachine(ctx, '../plugins/PureJS/GuitarTuner');
   var delay = new WasabiPingPongDelay(ctx, '../plugins/PureJS/PingPongDelay');
 
-  Promise.all([piano.load(), montr.load(), tuner.load(), delay.load()]).then((nnn) => {
-    const [piano_, montr_, tuner_, delay_] = nnn;
-    piano.loadGui().then((elem) => { document.body.appendChild(elem); });
-    montr.loadGui().then((elem) => { document.body.appendChild(elem); });
+  Promise.all([piano1.load(), piano2.load(), monitor.load(), tuner.load(), delay.load()]).then((nnn) => {
+    const [piano1_, piano2_, monitor_, tuner_, delay_] = nnn;
+    piano1.loadGui().then((elem) => {
+      document.body.appendChild(elem);
+      piano2.loadGui().then((elem) => { document.body.appendChild(elem); });
+    });
+    monitor.loadGui().then((elem) => { document.body.appendChild(elem); });
     tuner.loadGui().then((elem) => { document.body.appendChild(elem); });
     delay.loadGui().then((elem) => { document.body.appendChild(elem); });
-    piano_.connect(tuner_);
+
+    // MIDI connections
+    piano1_.connectMidi(piano2_);
+    piano2_.connectMidi(monitor_);
+
+    // Audio connections
+    piano2_.connect(tuner_);
     tuner_.connect(delay_);
     delay_.connect(ctx.destination);
   });
