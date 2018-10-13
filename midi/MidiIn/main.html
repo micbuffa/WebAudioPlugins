@@ -31,6 +31,10 @@
       this._root = this.attachShadow({ mode: 'open' });
       this._root.appendChild(MidiIntemp.content.cloneNode(true));
       var sel = this._root.querySelector('#sel');
+      sel.addEventListener('change', function() {
+        var name = sel.options[sel.selectedIndex].value;
+        if (name != plug.current) plug.open(name);
+      });
       plug.updateGui = function() {
         var i;
         for (i = sel.options.length; i > 0 ; i--) sel.remove(i - 1);

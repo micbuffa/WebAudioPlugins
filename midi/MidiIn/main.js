@@ -11,6 +11,7 @@ window.MidiIn = class MidiIn extends WebAudioPluginCompositeNode {
     this.current = '';
     this.currentPort = undefined;
     this.outputsMidi[0] = JZZ.Widget();
+    this.inputsMidi[0] = this.outputsMidi[0];
     var update = function() {
       const info = self.engine.info();
       self.ports = [];
@@ -19,7 +20,17 @@ window.MidiIn = class MidiIn extends WebAudioPluginCompositeNode {
     }
     this.updateGui = function() {};
     this.open = function(arg) {
-      this.engine.openMidiIn(arg).and(function() {
+      if (arg == '') { // disconnect
+        if (self.currentPort) {
+          self.currentPort.disconnect(self.outputsMidi[0]);
+          self.currentPort.close();
+          self.currentPort = undefined;
+          self.current = '';
+        }
+        self.updateGui();
+        return;
+      }
+      this.engine.openMidiIn(arg).or(function() { self.updateGui(); }).and(function() {
         if (self.currentPort) {
           self.currentPort.disconnect(self.outputsMidi[0]);
           self.currentPort.close();
