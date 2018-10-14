@@ -8,13 +8,14 @@
 <script src="JZZ/JZZ.input.Kbd.js"></script>
 <script src="JZZ/JZZ.synth.OSC.js"></script>
 <script src="MidiIn/main.js"></script>
+<script src="MidiOut/main.js"></script>
 <script src="MidiKeyboard/main.js"></script>
 <script src="MidiMonitor/main.js"></script>
 <script src="../plugins/PureJS/GuitarTuner/main.js"></script>
 <script src="../plugins/PureJS/PingPongDelay/main.js"></script>
 
 <style>
-#midiin, #monitor, #tuner, #delay {
+#midiin, #midiout, #monitor, #tuner, #delay {
   display: inline-block;
   vertical-align: top;
   margin: 5px;
@@ -35,15 +36,17 @@
 <script>
   var ctx = new AudioContext();
   var midiin = new JazzSoftMidiIn(ctx, 'MidiIn');
+  var midiout = new JazzSoftMidiOut(ctx, 'MidiOut');
   var piano1 = new JazzSoftMidiKeyboard(ctx, 'MidiKeyboard');
   var piano2 = new JazzSoftMidiKeyboard(ctx, 'MidiKeyboard');
   var monitor = new JazzSoftMidiMonitor(ctx, 'MidiMonitor');
   var tuner = new WasabiTunerMachine(ctx, '../plugins/PureJS/GuitarTuner');
   var delay = new WasabiPingPongDelay(ctx, '../plugins/PureJS/PingPongDelay');
 
-  Promise.all([midiin.load(), piano1.load(), piano2.load(), monitor.load(), tuner.load(), delay.load()]).then((nnn) => {
-    const [midiin_, piano1_, piano2_, monitor_, tuner_, delay_] = nnn;
+  Promise.all([midiin.load(), midiout.load(), piano1.load(), piano2.load(), monitor.load(), tuner.load(), delay.load()]).then((nnn) => {
+    const [midiin_, midiout_, piano1_, piano2_, monitor_, tuner_, delay_] = nnn;
     midiin.loadGui().then((elem) => { document.getElementById('midiin').appendChild(elem); });
+    midiout.loadGui().then((elem) => { document.getElementById('midiout').appendChild(elem); });
     piano1.loadGui().then((elem) => {
       document.getElementById('piano2').appendChild(elem);
       piano2.loadGui().then((elem) => { document.getElementById('piano2').appendChild(elem); });
@@ -56,6 +59,7 @@
     midiin_.connectMidi(piano1_);
     piano1_.connectMidi(piano2_);
     piano2_.connectMidi(monitor_);
+    monitor_.connectMidi(midiout_);
 
     // Audio connections
     piano2_.connect(tuner_);
