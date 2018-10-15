@@ -280,6 +280,29 @@ class WebAudioPluginFactory {
     });
   }
 
+  createLinkRelEqualImport(url) {
+    return new Promise((resolve, reject) => {
+      var link = document.createElement('link');
+      link.rel = 'import';
+      //link.id = 'urlPlugin';
+      link.href = url;
+      document.head.appendChild(link);
+
+      link.onload = (e) => {
+        // the file has been loaded, instanciate GUI
+        // and get back the HTML elem
+        // the  create Gui method is called 
+        var element = window['create' + this.classname.toString()](this.plug);
+        //console.log("LINK REL=IMPORT LOADED WE CAN CREATE CUSTOM ELEMS")
+        resolve(element);
+      }
+
+      link.onerror = function() {
+        reject(Error("Error creatinh lik rel=import"));
+      };
+    });
+  }
+
   loadGui() {
     return new Promise((resolve, reject) => {
       try {
@@ -294,27 +317,22 @@ class WebAudioPluginFactory {
 
         if (!this.linkExists(url)) {
           // LINK DOES NOT EXIST, let's add it to the document
-          var link = document.createElement('link');
-          link.rel = 'import';
-          //link.id = 'urlPlugin';
-          link.href = url;
-          document.head.appendChild(link);
-
-
-
-          link.onload = (e) => {
-            // the file has been loaded, instanciate GUI
-            // and get back the HTML elem
-            // the  create Gui method is called 
-            var element = window['create' + this.classname.toString()](this.plug);
+          this.createLinkRelEqualImport(url).then((element) => {
             resolve(element);
-          }
+          });
         } else {
           // LINK EXIST, WE AT LEAST CREATED ONE INSTANCE PREVIOUSLY
           // so we can create another instance
-          var element = window['create' + this.classname.toString()](this.plug);
-          resolve(element);
-        }
+          //console.log("WE SUPPOSE LINK CREATED LET'S CREATE ELEM")
+          /*setTimeout(() => {
+            console.log("Waiting 3 seconds")
+            var element = window['create' + this.classname.toString()](this.plug);
+            resolve(element);
+             }, 3000)*/
+             var element = window['create' + this.classname.toString()](this.plug);
+            resolve(element);
+            
+         }
       } catch (e) {
         console.log(e);
         reject(e);
