@@ -1,0 +1,60 @@
+<template>
+  <style>
+    :host {
+      display: inline-block;
+      background-color: #ddd;
+      box-shadow: 4px 5px 6px rgba(0, 0, 0, 0.7), inset -2px -2px 5px 0px rgba(0, 0, 0, 0.2), inset 3px 1px 1px 4px rgba(255, 255, 255, 0.2), 1px 0px 1px 0px rgba(0, 0, 0, 0.9), 0 2px 1px 0 rgba(0, 0, 0, 0.9), 1px 1px 1px 0px rgba(0, 0, 0, 0.9);
+      position: relative;
+      padding: .5em;
+    }
+    #sel {
+      min-width: 15em;
+      background-color: #fff;
+      padding: .2em;
+      border-style: inset;
+    }
+  </style>
+  <div>MIDI-Out</div>
+  <select id="sel">
+  <option value=''>=== No connection ===</option>
+  </select>
+</template>
+
+<script>
+  let MidiOuttemp = document.currentScript.ownerDocument.querySelector('template');
+
+  class MidiOutGui extends HTMLElement {
+    constructor(plug) {
+      super();
+      this._plug = plug;
+      // bind shadow to the class and clone the template into it
+      this._root = this.attachShadow({ mode: 'open' });
+      this._root.appendChild(MidiOuttemp.content.cloneNode(true));
+      var sel = this._root.querySelector('#sel');
+      sel.addEventListener('change', function() {
+        var name = sel.options[sel.selectedIndex].value;
+        if (name != plug.current) plug.open(name);
+      });
+      plug.updateGui = function() {
+        var i;
+        for (i = sel.options.length; i > 0 ; i--) sel.remove(i - 1);
+        for (i = 0; i < plug.ports.length; i++) sel[i] = new Option(plug.ports[i], plug.ports[i], false, plug.ports[i] == plug.current);
+        sel[i] = new Option('=== No connection ===', '', false, plug.current == '');
+      };
+      plug.updateGui();
+    }
+  }
+
+  try {
+    customElements.define('jazzsoft-midiout', MidiOutGui);
+  } catch (error) {
+    console.log(error);
+    console.log("Element already defined");
+  }
+
+  createMidiOut = (plug) => {
+    let elem = new MidiOutGui(plug);
+    return elem;
+  }
+
+</script>

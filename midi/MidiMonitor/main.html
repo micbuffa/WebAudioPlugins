@@ -1,0 +1,58 @@
+<template>
+  <style>
+    :host {
+      display: inline-block;
+      background-color: #ddd;
+      box-shadow: 4px 5px 6px rgba(0, 0, 0, 0.7), inset -2px -2px 5px 0px rgba(0, 0, 0, 0.2), inset 3px 1px 1px 4px rgba(255, 255, 255, 0.2), 1px 0px 1px 0px rgba(0, 0, 0, 0.9), 0 2px 1px 0 rgba(0, 0, 0, 0.9), 1px 1px 1px 0px rgba(0, 0, 0, 0.9);
+      position: relative;
+      padding: .5em;
+    }
+    #log {
+      min-width: 15em;
+      background-color: #fff;
+      padding: .2em;
+      border-style: inset;
+    }
+  </style>
+  <div>MIDI</div>
+  <pre id="log"></pre>
+</template>
+
+<script>
+  let MidiMonitortemp = document.currentScript.ownerDocument.querySelector('template');
+
+  class MidiMonitorGui extends HTMLElement {
+    constructor(plug) {
+      super();
+      this._plug = plug;
+      this._plug.gui = this;
+      // bind shadow to the class and clone the template into it
+      this._root = this.attachShadow({ mode: 'open' });
+      this._root.appendChild(MidiMonitortemp.content.cloneNode(true));
+      var log = this._root.querySelector('#log');
+      var arr = [];
+      const SZ = 12;
+      log.innerHTML = new Array(SZ + 1).join('\n');
+      plug.log = function(msg) {
+        arr.push(msg.toString());
+        while (arr.length > SZ) arr = arr.slice(1);
+        var str = arr.join('\n');
+        for (var i = arr.length; i <= SZ; i++) str += '\n';
+        log.innerHTML = str;
+      };
+    }
+  }
+
+  try {
+    customElements.define('jazzsoft-midimonitor', MidiMonitorGui);
+  } catch (error) {
+    console.log(error);
+    console.log("Element already defined");
+  }
+
+  createMidiMonitor = (plug) => {
+    let elem = new MidiMonitorGui(plug);
+    return elem;
+  }
+
+</script>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>MIDI Keyboard test</title>
+</head>
+<script src="../../sdk/WebAudioSDK.js"></script>
+<script src="../JZZ/JZZ.js"></script>
+<script src="../JZZ/JZZ.input.Kbd.js"></script>
+<script src="../JZZ/JZZ.synth.OSC.js"></script>
+<script src="main.js"></script>
+<script src="../../plugins/PureJS/GuitarTuner/main.js"></script>
+<script src="../../plugins/PureJS/PingPongDelay/main.js"></script>
+
+<body>
+</body>
+
+<script>
+  var ctx = new AudioContext();
+  var piano = new JazzSoftMidiKeyboard(ctx, '.');
+  var tuner = new WasabiTunerMachine(ctx, '../../plugins/PureJS/GuitarTuner');
+  var delay = new WasabiPingPongDelay(ctx, '../../plugins/PureJS/PingPongDelay');
+
+  Promise.all([piano.load(), tuner.load(), delay.load()]).then((nnn) => {
+    const [piano_, tuner_, delay_] = nnn;
+    piano.loadGui().then((elem) => { document.body.appendChild(elem); });
+    tuner.loadGui().then((elem) => { document.body.appendChild(elem); });
+    delay.loadGui().then((elem) => { document.body.appendChild(elem); });
+    piano_.connect(tuner_);
+    tuner_.connect(delay_);
+    delay_.connect(ctx.destination);
+  });
+</script>
+
+</html>

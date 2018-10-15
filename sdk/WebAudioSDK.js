@@ -31,6 +31,8 @@ class CompositeAudioNode {
     */
     this.inputs = [];
     this.outputs = [];
+    this.inputsMidi = [];
+    this.outputsMidi = [];
     this._input = this.context.createGain();
     this._output = this.context.createGain();
     this.inputs.push(this._input);
@@ -47,6 +49,23 @@ class CompositeAudioNode {
   disconnect() {
     this._output.disconnect.apply(this._output, arguments);
   }
+
+  connectMidi(dest, outindex, inindex) {
+    if (typeof outindex == 'undefined') outindex = 0;
+    if (typeof inindex == 'undefined') inindex = 0;
+    if (dest && this.outputsMidi[outindex] && dest.inputsMidi[inindex]) {
+      this.outputsMidi[outindex].connect(dest.inputsMidi[inindex]);
+    }
+  }
+
+  disconnectMidi(dest, outindex, inindex) {
+    if (typeof outindex == 'undefined') outindex = 0;
+    if (typeof inindex == 'undefined') inindex = 0;
+    if (dest && this.outputsMidi[outindex] && dest.inputsMidi[inindex]) {
+      this.outputsMidi[outindex].disconnect(dest.inputsMidi[inindex]);
+    }
+  }
+
 }
 
 
