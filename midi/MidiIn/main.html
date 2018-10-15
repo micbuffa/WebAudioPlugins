@@ -16,7 +16,7 @@
   </style>
   <div>MIDI-In</div>
   <select id="sel">
-  <option value=''>NONE</option>
+  <option value=''>=== No connection ===</option>
   </select>
 </template>
 
@@ -39,7 +39,7 @@
         var i;
         for (i = sel.options.length; i > 0 ; i--) sel.remove(i - 1);
         for (i = 0; i < plug.ports.length; i++) sel[i] = new Option(plug.ports[i], plug.ports[i], false, plug.ports[i] == plug.current);
-        sel[i] = new Option('NONE', '', false, plug.current == '');
+        sel[i] = new Option('=== No connection ===', '', false, plug.current == '');
       };
       plug.updateGui();
     }
