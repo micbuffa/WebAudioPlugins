@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>MIDI test</title>
+<script src="../sdk/WebAudioSDK.js"></script>
+<script src="JZZ/JZZ.js"></script>
+<script src="JZZ/JZZ.input.Kbd.js"></script>
+<script src="JZZ/JZZ.synth.OSC.js"></script>
+<script src="JZZ/JZZ.midi.SMF.js"></script>
+<script src="JZZ/JZZ.gui.Player.js"></script>
+<script src="MidiIn/main.js"></script>
+<script src="MidiOut/main.js"></script>
+<script src="MidiPlayer/main.js"></script>
+<script src="MidiKeyboard/main.js"></script>
+<script src="MidiMonitor/main.js"></script>
+<script src="../plugins/PureJS/GuitarTuner/main.js"></script>
+<script src="../plugins/PureJS/PingPongDelay/main.js"></script>
+
+<style>
+#midiin, #midiout, #player, #monitor, #tuner, #delay {
+  display: inline-block;
+  vertical-align: top;
+  margin: 5px;
+}
+#piano1, #piano2 {
+  margin: 5px;
+}
+</style>
+</head>
+
+<body>
+<div><span id=midiin></span><span id=player></span><span id=midiout></span></div>
+<div id=piano1></div>
+<div id=piano2></div>
+<div><span id=monitor></span><span id=tuner></span><span id=delay></span></div>
+</body>
+
+<script>
+  var ctx = new AudioContext();
+  var midiin = new JazzSoftMidiIn(ctx, 'MidiIn');
+  var midiout = new JazzSoftMidiOut(ctx, 'MidiOut');
+  var player = new JazzSoftMidiPlayer(ctx, 'MidiPlayer');
+  var piano1 = new JazzSoftMidiKeyboard(ctx, 'MidiKeyboard');
+  var piano2 = new JazzSoftMidiKeyboard(ctx, 'MidiKeyboard');
+  var monitor = new JazzSoftMidiMonitor(ctx, 'MidiMonitor');
+  var tuner = new WasabiTunerMachine(ctx, '../plugins/PureJS/GuitarTuner');
+  var delay = new WasabiPingPongDelay(ctx, '../plugins/PureJS/PingPongDelay');
+
+  Promise.all([midiin.load(), midiout.load(), player.load(), piano1.load(), piano2.load(), monitor.load(), tuner.load(), delay.load()]).then((nnn) => {
+    const [midiin_, midiout_, player_, piano1_, piano2_, monitor_, tuner_, delay_] = nnn;
+    midiin.loadGui().then((elem) => { document.getElementById('midiin').appendChild(elem); });
+    midiout.loadGui().then((elem) => { document.getElementById('midiout').appendChild(elem); });
+    piano1.loadGui().then((elem) => {
+      document.getElementById('piano2').appendChild(elem);
+      piano2.loadGui().then((elem) => { document.getElementById('piano2').appendChild(elem); });
+    });
+    player.loadGui().then((elem) => {
+      document.getElementById('player').appendChild(elem);
+      // it may be better to move this code into the MidiPlayer class
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4) {
+          if (this.status == 200) {
+            var r = xhttp.responseText;
+            var data = '';
+            for (var i = 0; i < r.length; i++) data += String.fromCharCode(r.charCodeAt(i) & 0xff);
+            player_.load(data);
+          }
+        }
+      };
+      xhttp.overrideMimeType('text/plain; charset=x-user-defined');
+      xhttp.open('GET', '../assets/midi/lame.mid', true);
+      xhttp.send();
+    });
+    monitor.loadGui().then((elem) => { document.getElementById('monitor').appendChild(elem); });
+    tuner.loadGui().then((elem) => { document.getElementById('tuner').appendChild(elem); });
+    delay.loadGui().then((elem) => { document.getElementById('delay').appendChild(elem); });
+
+    // MIDI connections
+    midiin_.connectMidi(piano1_);
+    player_.connectMidi(piano1_);
+    piano1_.connectMidi(piano2_);
+    piano2_.connectMidi(monitor_);
+    monitor_.connectMidi(midiout_);
+
+    // Audio connections
+    piano2_.connect(tuner_);
+    tuner_.connect(delay_);
+    delay_.connect(ctx.destination);
+  });
+</script>
+
+</html>

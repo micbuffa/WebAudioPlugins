@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>MIDI Out test</title>
+</head>
+
+<script src="../../sdk/WebAudioSDK.js"></script>
+<script src="../JZZ/JZZ.js"></script>
+<script src="main.js"></script>
+
+<body>
+<div><button onclick='sendtestmsg();'>Random note</button></div>
+</body>
+
+<script>
+  var ctx = new AudioContext();
+  var midiout = new JazzSoftMidiOut(ctx, '.');
+  function sendtestmsg() {
+    var note = Math.floor(Math.random() * 128);
+    midiout.plug.inputsMidi[0].note(0, note, 127, 200);
+  }
+
+  midiout.load().then((plug) => {
+    midiout.loadGui().then((elem) => { document.body.appendChild(elem); });
+  });
+</script>
+
+</html>
