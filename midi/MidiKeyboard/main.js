@@ -5,7 +5,7 @@ window.MidiKeyboard = class MidiKeyboard extends WebAudioPluginCompositeNode {
   }
 
   createNodes() {
-    this.synth = JZZ.synth.OSC();
+    this.synth = JZZ.synth.Tiny();
     this.inputsMidi[0] = JZZ.Widget();
     this.outputsMidi[0] = JZZ.Widget();
     this.inputsMidi[0].connect(this.outputsMidi[0]);
