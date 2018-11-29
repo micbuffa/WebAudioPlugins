@@ -6,13 +6,14 @@
     define('JZZ', [], factory);
   }
   else {
+    if (!global) global = window;
     if (global.JZZ && global.JZZ.MIDI) return;
     global.JZZ = factory();
   }
 })(this, function() {
 
   var _scope = typeof window === 'undefined' ? global : window;
-  var _version = '0.5.9';
+  var _version = '0.6.3';
   var i, j, k, m, n;
 
   var _time = Date.now || function () { return new Date().getTime(); };
@@ -662,9 +663,9 @@
     _engine._version = _engine._main.version;
     _engine._sysex = true;
     var watcher;
-    _closeAll = function() {
+    function _closeAll() {
       for (var i = 0; i < this.clients.length; i++) this._close(this.clients[i]);
-    };
+    }
     _engine._refresh = function() {
       _engine._outs = [];
       _engine._ins = [];
@@ -848,9 +849,9 @@
     _engine._outsW = [];
     _engine._insW = [];
     var watcher;
-    _closeAll = function() {
+    function _closeAll() {
       for (var i = 0; i < this.clients.length; i++) this._close(this.clients[i]);
-    };
+    }
     _engine._refresh = function() {
       _engine._outs = [];
       _engine._ins = [];
@@ -1013,9 +1014,9 @@
         document.dispatchEvent(new CustomEvent('jazz-midi', { detail: ['refresh'] }));
       }, 0);
     };
-    _closeAll = function() {
+    function _closeAll() {
       for (var i = 0; i < this.clients.length; i++) this._close(this.clients[i]);
-    };
+    }
     _engine._openOut = function(port, name) {
       var impl = _engine._outMap[name];
       if (!impl) {

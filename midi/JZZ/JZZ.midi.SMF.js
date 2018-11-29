@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.0.3';
+  var _ver = '1.0.7';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -98,8 +98,9 @@
     this.loadSMF(s);
   };
 
+  var MThd0006 = 'MThd' + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(6);
   SMF.prototype.loadSMF = function(s) {
-    if (s.substr(0, 8) != 'MThd\0\0\0\6') _error('Not a MIDI file');
+    if (s.substr(0, 8) != MThd0006) _error('Not a MIDI file');
     this.type = s.charCodeAt(8) * 16 + s.charCodeAt(9);
     this.ntrk = s.charCodeAt(10) * 16 + s.charCodeAt(11);
     if (s.charCodeAt(12) > 0x7f) {
@@ -121,7 +122,8 @@
       this.push(new Chunk(type, data));
       p += len;
     }
-    if (p != s.length || n != this.ntrk) _error("Corrupted MIDI file");
+    if (n != this.ntrk) _error("Corrupted MIDI file");
+    if (p > s.length) this.fixed = true;
   };
 
   SMF.prototype.dump = function(rmi) {
@@ -136,7 +138,7 @@
       s += this[i].dump();
     }
     s = (this.ppqn ? _num2(this.ppqn) : String.fromCharCode(0x100 - this.fps) + String.fromCharCode(this.ppf)) + s;
-    s = 'MThd\0\0\0\6\0' + String.fromCharCode(this.type) + _num2(this.ntrk) + s;
+    s = MThd0006 + String.fromCharCode(0) + String.fromCharCode(this.type) + _num2(this.ntrk) + s;
     return s;
   };
   SMF.prototype.toString = function() {
@@ -154,6 +156,7 @@
   };
 
   function _var2num(s) {
+    if (!s.length) return 0; // missing last byte
     if (s.charCodeAt(0) < 0x80) return s.charCodeAt(0);
     var x = s.charCodeAt(0) & 0x7f;
     x <<= 7;

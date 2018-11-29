@@ -13,7 +13,7 @@
   if (!JZZ) return;
   if (!JZZ.input) JZZ.input = {};
 
-  var _version = '1.0.6';
+  var _version = '1.0.7';
   function _name(name, deflt) { return name ? name : deflt; }
 
   function _copy(obj) {
@@ -736,6 +736,8 @@
     _KbdEngine._arg = arg;
     return JZZ.lib.openMidiIn(name, _KbdEngine);
   };
+
+  JZZ.input.Kbd.version = function() { return _version; };
 
   JZZ.input.Kbd.register = function() {
     var name, arg;
