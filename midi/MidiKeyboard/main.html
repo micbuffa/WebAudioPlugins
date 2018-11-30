@@ -9,7 +9,30 @@
       position: relative;
       padding: 5px;
     }
+    #top {
+      padding-bottom: .3em;
+      text-align: right;
+    }
+    select {
+     // min-width: 15em;
+      background-color: #fff;
+      padding: .2em;
+      border-style: inset;
+    }
+    #instr {
+      width: 12em;
+    }
   </style>
+  <div id="top">
+  Channel:
+  <select id="chan">
+  <option value='0'>01</option>
+  </select>
+  &nbsp;Instrument:
+  <select id="instr">
+  <option value='0'>Acoustic Grand Piano</option>
+  </select>
+  </div>
   <div id="piano"></div>
 </template>
 
@@ -24,11 +47,63 @@
       // bind shadow to the class and clone the template into it
       this._root = this.attachShadow({ mode: 'open' });
       this._root.appendChild(MidiKeyboardtemp.content.cloneNode(true));
+
+      const self = this;
+      var i;
+
       //insert GUI piano between input and output nodes
       var piano = JZZ.input.Kbd({ at: this._root.querySelector('#piano') });
       plug.inputsMidi[0].disconnect(plug.outputsMidi[0]);
       plug.inputsMidi[0].connect(piano);
       piano.connect(plug.outputsMidi[0]);
+
+      // Channel listbox
+      this.channel = 0;
+      var chan = this._root.querySelector('#chan');
+      for (i = 0; i < 16; i++) chan[i] = new Option(i < 9 ? '0' + (i + 1) : (i + 1), i, false, !i);
+      chan.addEventListener('change', function() {
+        var c = chan.options[chan.selectedIndex].value;
+        if (c != self.channel) {
+          self.channel = c;
+          piano.channel(c);
+          self.updateListbox();
+        }
+      });
+
+      // Instruments listbox
+      this.prog = [];
+      for (i = 0; i < 16; i++) this.prog[i] = 0;
+      this.instr = this._root.querySelector('#instr');
+      this.instr.addEventListener('change', function() {
+        var n = self.instr.options[self.instr.selectedIndex].value;
+        if (n != self.prog[self.channel]) {
+          self.prog[self.channel] = n;
+          piano.program(self.channel, n);
+        }
+      });
+
+      // Listen for Program Change messages
+      plug.inputsMidi[0]._receive = function(msg) {
+        if (msg[0] >= 0xC0 && msg[0] <= 0xCF) {
+          const c = msg[0] & 0xF;
+          self.prog[c] = msg[1];
+          if (self.channel == c) self.updateListbox();
+        }
+        this._emit(msg); // pass it down the stream
+      }
+
+      this.updateListbox();
+    }
+
+    updateListbox() { // could be optimized...
+      var i;
+      if (this.channel == 9) {
+        for (i = this.instr.options.length; i > 0 ; i--) this.instr.remove(i - 1);
+        this.instr[0] = new Option('Percussion');
+      }
+      else {
+        for (i = 0; i < 128; i++) this.instr[i] = new Option(JZZ.MIDI.programName(i), i, false, i == this.prog[this.channel]);
+      }
     }
   }
 

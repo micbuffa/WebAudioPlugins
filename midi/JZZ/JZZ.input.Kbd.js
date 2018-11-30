@@ -13,7 +13,7 @@
   if (!JZZ) return;
   if (!JZZ.input) JZZ.input = {};
 
-  var _version = '1.0.5';
+  var _version = '1.0.7';
   function _name(name, deflt) { return name ? name : deflt; }
 
   function _copy(obj) {
@@ -89,6 +89,14 @@
     };
   }
 
+  Keyboard.prototype.channel = function(c) {
+    if (typeof this.mpe == 'undefined') {
+      var chan = _channelMap[c];
+      if (typeof chan != 'undefined') this.chan = chan;
+    }
+    return this.chan;
+  };
+
   function AsciiEngine() {}
 
   AsciiEngine.prototype._info = function(name) {
@@ -122,6 +130,7 @@
     }
     port._info = this._info(name);
     port._close = function() { keyboard._close(); };
+    port.channel = function(x) { return keyboard.channel(x); };
     port._resume();
   };
 
@@ -294,6 +303,20 @@
     }
     this.bins.sort(function(a, b) { return a - b;});
   }
+
+  Piano.prototype.channel = function(c) {
+    if (typeof this.mpe == 'undefined') {
+      var chan = _channelMap[c];
+      if (typeof chan != 'undefined' && chan != this.chan) {
+        for (var midi in this.playing) {
+          _style(this.keys[midi], this.stl0[midi]);
+          _style(this.keys[midi], this.locs[midi]);
+        }
+        this.chan = chan;
+      }
+    }
+    return this.chan;
+  };
 
   Piano.prototype._close = function() {
     for (var midi in this.playing) if (this.playing[midi] == 'M' || this.playing[midi] == 'T') this.noteOff(midi);
@@ -698,6 +721,7 @@
     port.getKeys = function(a, b) { return piano.getKeys(a, b); };
     port.getWhiteKeys = function(a, b) { return piano.getWhiteKeys(a, b); };
     port.getBlackKeys = function(a, b) { return piano.getBlackKeys(a, b); };
+    port.channel = function(x) { return piano.channel(x); };
     port._resume();
   };
 
@@ -712,6 +736,8 @@
     _KbdEngine._arg = arg;
     return JZZ.lib.openMidiIn(name, _KbdEngine);
   };
+
+  JZZ.input.Kbd.version = function() { return _version; };
 
   JZZ.input.Kbd.register = function() {
     var name, arg;
@@ -987,6 +1013,16 @@
 
   Slider.prototype = new _Knob();
 
+  Slider.prototype.channel = function(c) {
+    var chan = _channelMap[c];
+    if (typeof chan != 'undefined' && chan != this.chan) {
+      this.chan = chan;
+      this.data.chan = chan;
+      this.setValue(this.data.base);
+    }
+    return this.chan;
+  };
+
   Slider.prototype.createAt = function(at) {
     at.innerHTML = '';
     var bh = parseInt(this.current.bh);
@@ -1153,6 +1189,18 @@
     _initKnob.call(this, arg, {pos:'N', rw:128, rh:128, kw:24, kh:16});
   }
   Pad.prototype = new _Knob();
+
+  Pad.prototype.channel = function(c) {
+    var chan = _channelMap[c];
+    if (typeof chan != 'undefined' && chan != this.chan) {
+      this.chan = chan;
+      this.dataX.chan = chan;
+      this.dataY.chan = chan;
+      this.setValue(this.dataX.base, this.dataY.base);
+    }
+    return this.chan;
+  };
+
   Pad.prototype.createAt = function(at) {
     at.innerHTML = '';
     var bh = parseInt(this.current.bh);
@@ -1372,6 +1420,7 @@
     port.getRange = function() { return slider.rangeSpan; };
     port.getKnob = function() { return slider.knobSpan; };
     port.setValue = function(x) { slider.setValue(x); };
+    port.channel = function(x) { return slider.channel(x); };
     port._resume();
   };
 
@@ -1426,6 +1475,7 @@
     port.getRange = function() { return pad.rangeSpan; };
     port.getKnob = function() { return pad.knobSpan; };
     port.setValue = function(x) { pad.setValue(x); };
+    port.channel = function(x) { return pad.channel(x); };
     port._resume();
   };
 

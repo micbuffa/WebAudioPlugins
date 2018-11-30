@@ -6,13 +6,14 @@
     define('JZZ', [], factory);
   }
   else {
+    if (!global) global = window;
     if (global.JZZ && global.JZZ.MIDI) return;
     global.JZZ = factory();
   }
 })(this, function() {
 
   var _scope = typeof window === 'undefined' ? global : window;
-  var _version = '0.5.8';
+  var _version = '0.6.3';
   var i, j, k, m, n;
 
   var _time = Date.now || function () { return new Date().getTime(); };
@@ -662,9 +663,9 @@
     _engine._version = _engine._main.version;
     _engine._sysex = true;
     var watcher;
-    _closeAll = function() {
+    function _closeAll() {
       for (var i = 0; i < this.clients.length; i++) this._close(this.clients[i]);
-    };
+    }
     _engine._refresh = function() {
       _engine._outs = [];
       _engine._ins = [];
@@ -848,9 +849,9 @@
     _engine._outsW = [];
     _engine._insW = [];
     var watcher;
-    _closeAll = function() {
+    function _closeAll() {
       for (var i = 0; i < this.clients.length; i++) this._close(this.clients[i]);
-    };
+    }
     _engine._refresh = function() {
       _engine._outs = [];
       _engine._ins = [];
@@ -1013,9 +1014,9 @@
         document.dispatchEvent(new CustomEvent('jazz-midi', { detail: ['refresh'] }));
       }, 0);
     };
-    _closeAll = function() {
+    function _closeAll() {
       for (var i = 0; i < this.clients.length; i++) this._close(this.clients[i]);
-    };
+    }
     _engine._openOut = function(port, name) {
       var impl = _engine._outMap[name];
       if (!impl) {
@@ -1465,10 +1466,10 @@
   }
   for (n = 0; n < 128; n++) _noteNum[n] = n;
   function _throw(x) { throw RangeError('Bad MIDI value: ' + x); }
-  function _ch(n) { if (n != parseInt(n) || n < 0 || n > 0xf) _throw(n); return n; }
-  function _7b(n, m) { if (n != parseInt(n) || n < 0 || n > 0x7f) _throw(typeof m == 'undefined' ? n : m); return n; }
-  function _lsb(n) { if (n != parseInt(n) || n < 0 || n > 0x3fff) _throw(n); return n & 0x7f; }
-  function _msb(n) { if (n != parseInt(n) || n < 0 || n > 0x3fff) _throw(n); return n >> 7; }
+  function _ch(n) { if (n != parseInt(n) || n < 0 || n > 0xf) _throw(n); return parseInt(n); }
+  function _7b(n, m) { if (n != parseInt(n) || n < 0 || n > 0x7f) _throw(typeof m == 'undefined' ? n : m); return parseInt(n); }
+  function _lsb(n) { if (n != parseInt(n) || n < 0 || n > 0x3fff) _throw(n); return parseInt(n) & 0x7f; }
+  function _msb(n) { if (n != parseInt(n) || n < 0 || n > 0x3fff) _throw(n); return parseInt(n) >> 7; }
   function _8bs(s) { s = '' + s; for (var i = 0; i < s.length; i++) if (s.charCodeAt(i) > 255) _throw(s[i]); return s; }
   var _helperCH = {
     noteOff: function(c, n, v) { if (typeof v == 'undefined') v = 64; return [0x80 + _ch(c), _7b(MIDI.noteValue(n), n), _7b(v)]; },

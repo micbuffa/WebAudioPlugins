@@ -14,7 +14,7 @@
   if (!JZZ.synth) JZZ.synth = {};
   if (JZZ.synth.Tiny) return;
 
-  var _version = '1.0.0';
+  var _version = '1.0.3';
 
 function WebAudioTinySynth(opt){
   this.__proto__ = this.sy =
@@ -1152,7 +1152,7 @@ function WebAudioTinySynth(opt){
     var synth;
     if (typeof name !== 'undefined') {
       name = '' + name;
-      if (!_synth[name]) _synth[name] = new Synth();
+      if (!_synth[name]) _synth[name] = new WebAudioTinySynth();
       synth = _synth[name];
     }
     else {
