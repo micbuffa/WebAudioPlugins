@@ -21,7 +21,7 @@
       // bind shadow to the class and clone the template into it
       this._root = this.attachShadow({ mode: 'open' });
       this._root.appendChild(MidiPlayertemp.content.cloneNode(true));
-      var player = JZZ.gui.Player(this._root.querySelector('#player'));
+      var player = JZZ.gui.Player({ at: this._root.querySelector('#player'), open: true, more: false });
       player.connect(plug.outputsMidi[0]);
       // redefine the headless functions defined in MidiPlayer
       plug.load = function(data) { player.load(new JZZ.MIDI.SMF(data)); }
