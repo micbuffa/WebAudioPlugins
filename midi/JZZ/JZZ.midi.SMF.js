@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.0.7';
+  var _ver = '1.0.9';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -113,7 +113,8 @@
     if (this.type > 2 || (this.type == 0 && this.ntrk > 1) || (!this.ppf && !this.ppqn)) _error('Invalid MIDI header');
     var n = 0;
     var p = 14;
-    while (p < s.length) {
+    this.warn = [];
+    while (p < s.length - 8) {
       var type = s.substr(p, 4);
       if (type == 'MTrk') n++;
       var len = (s.charCodeAt(p + 4) << 24) + (s.charCodeAt(p + 5) << 16) + (s.charCodeAt(p + 6) << 8) + s.charCodeAt(p + 7);
@@ -122,8 +123,9 @@
       this.push(new Chunk(type, data));
       p += len;
     }
-    if (n != this.ntrk) _error("Corrupted MIDI file");
-    if (p > s.length) this.fixed = true;
+    if (n != this.ntrk) _error('Corrupted MIDI file');
+    if (p < s.length) this.warn.push(['extra', s.length - p]);
+    if (p > s.length) this.warn.push(['missing', p - s.length]);
   };
 
   SMF.prototype.dump = function(rmi) {
