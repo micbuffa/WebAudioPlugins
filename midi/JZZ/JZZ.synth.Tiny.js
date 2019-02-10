@@ -14,7 +14,7 @@
   if (!JZZ.synth) JZZ.synth = {};
   if (JZZ.synth.Tiny) return;
 
-  var _version = '1.0.3';
+  var _version = '1.0.5';
 
 function WebAudioTinySynth(opt){
   this.__proto__ = this.sy =
@@ -35,103 +35,8 @@ function WebAudioTinySynth(opt){
       /**/
     },
     /**/
-    program:[
-// 1-8 : Piano
-      {name:"Acoustic Grand Piano"},    {name:"Bright Acoustic Piano"},
-      {name:"Electric Grand Piano"},    {name:"Honky-tonk Piano"},
-      {name:"Electric Piano 1"},        {name:"Electric Piano 2"},
-      {name:"Harpsichord"},             {name:"Clavi"},
-/* 9-16 : Chromatic Perc*/
-      {name:"Celesta"},                 {name:"Glockenspiel"},
-      {name:"Music Box"},               {name:"Vibraphone"},
-      {name:"Marimba"},                 {name:"Xylophone"},
-      {name:"Tubular Bells"},           {name:"Dulcimer"},
-/* 17-24 : Organ */
-      {name:"Drawbar Organ"},           {name:"Percussive Organ"},
-      {name:"Rock Organ"},              {name:"Church Organ"},
-      {name:"Reed Organ"},              {name:"Accordion"},
-      {name:"Harmonica"},               {name:"Tango Accordion"},
-/* 25-32 : Guitar */
-      {name:"Acoustic Guitar (nylon)"}, {name:"Acoustic Guitar (steel)"},
-      {name:"Electric Guitar (jazz)"},  {name:"Electric Guitar (clean)"},
-      {name:"Electric Guitar (muted)"}, {name:"Overdriven Guitar"},
-      {name:"Distortion Guitar"},       {name:"Guitar harmonics"},
-/* 33-40 : Bass */
-      {name:"Acoustic Bass"},           {name:"Electric Bass (finger)"},
-      {name:"Electric Bass (pick)"},    {name:"Fretless Bass"},
-      {name:"Slap Bass 1"},             {name:"Slap Bass 2"},
-      {name:"Synth Bass 1"},            {name:"Synth Bass 2"},
-/* 41-48 : Strings */
-      {name:"Violin"},                  {name:"Viola"},
-      {name:"Cello"},                   {name:"Contrabass"},
-      {name:"Tremolo Strings"},         {name:"Pizzicato Strings"},
-      {name:"Orchestral Harp"},         {name:"Timpani"},
-/* 49-56 : Ensamble */
-      {name:"String Ensemble 1"},       {name:"String Ensemble 2"},
-      {name:"SynthStrings 1"},          {name:"SynthStrings 2"},
-      {name:"Choir Aahs"},              {name:"Voice Oohs"},
-      {name:"Synth Voice"},             {name:"Orchestra Hit"},
-/* 57-64 : Brass */
-      {name:"Trumpet"},                 {name:"Trombone"},
-      {name:"Tuba"},                    {name:"Muted Trumpet"},
-      {name:"French Horn"},             {name:"Brass Section"},
-      {name:"SynthBrass 1"},            {name:"SynthBrass 2"},
-/* 65-72 : Reed */
-      {name:"Soprano Sax"},             {name:"Alto Sax"},
-      {name:"Tenor Sax"},               {name:"Baritone Sax"},
-      {name:"Oboe"},                    {name:"English Horn"},
-      {name:"Bassoon"},                 {name:"Clarinet"},
-/* 73-80 : Pipe */
-      {name:"Piccolo"},                 {name:"Flute"},
-      {name:"Recorder"},                {name:"Pan Flute"},
-      {name:"Blown Bottle"},            {name:"Shakuhachi"},
-      {name:"Whistle"},                 {name:"Ocarina"},
-/* 81-88 : SynthLead */
-      {name:"Lead 1 (square)"},         {name:"Lead 2 (sawtooth)"},
-      {name:"Lead 3 (calliope)"},       {name:"Lead 4 (chiff)"},
-      {name:"Lead 5 (charang)"},        {name:"Lead 6 (voice)"},
-      {name:"Lead 7 (fifths)"},         {name:"Lead 8 (bass + lead)"},
-/* 89-96 : SynthPad */
-      {name:"Pad 1 (new age)"},         {name:"Pad 2 (warm)"},
-      {name:"Pad 3 (polysynth)"},       {name:"Pad 4 (choir)"},
-      {name:"Pad 5 (bowed)"},           {name:"Pad 6 (metallic)"},
-      {name:"Pad 7 (halo)"},            {name:"Pad 8 (sweep)"},
-/* 97-104 : FX */
-      {name:"FX 1 (rain)"},             {name:"FX 2 (soundtrack)"},
-      {name:"FX 3 (crystal)"},          {name:"FX 4 (atmosphere)"},
-      {name:"FX 5 (brightness)"},       {name:"FX 6 (goblins)"},
-      {name:"FX 7 (echoes)"},           {name:"FX 8 (sci-fi)"},
-/* 105-112 : Ethnic */
-      {name:"Sitar"},                   {name:"Banjo"},
-      {name:"Shamisen"},                {name:"Koto"},
-      {name:"Kalimba"},                 {name:"Bag pipe"},
-      {name:"Fiddle"},                  {name:"Shanai"},
-/* 113-120 : Percussive */
-      {name:"Tinkle Bell"},             {name:"Agogo"},
-      {name:"Steel Drums"},             {name:"Woodblock"},
-      {name:"Taiko Drum"},              {name:"Melodic Tom"},
-      {name:"Synth Drum"},              {name:"Reverse Cymbal"},
-/* 121-128 : SE */
-      {name:"Guitar Fret Noise"},       {name:"Breath Noise"},
-      {name:"Seashore"},                {name:"Bird Tweet"},
-      {name:"Telephone Ring"},          {name:"Helicopter"},
-      {name:"Applause"},                {name:"Gunshot"},
-    ],
-    drummap:[
-// 35
-      {name:"Acoustic Bass Drum"},  {name:"Bass Drum 1"},      {name:"Side Stick"},     {name:"Acoustic Snare"},
-      {name:"Hand Clap"},           {name:"Electric Snare"},   {name:"Low Floor Tom"},  {name:"Closed Hi Hat"},
-      {name:"High Floor Tom"},      {name:"Pedal Hi-Hat"},     {name:"Low Tom"},        {name:"Open Hi-Hat"},
-      {name:"Low-Mid Tom"},         {name:"Hi-Mid Tom"},       {name:"Crash Cymbal 1"}, {name:"High Tom"},
-      {name:"Ride Cymbal 1"},       {name:"Chinese Cymbal"},   {name:"Ride Bell"},      {name:"Tambourine"},
-      {name:"Splash Cymbal"},       {name:"Cowbell"},          {name:"Crash Cymbal 2"}, {name:"Vibraslap"},
-      {name:"Ride Cymbal 2"},       {name:"Hi Bongo"},         {name:"Low Bongo"},      {name:"Mute Hi Conga"},
-      {name:"Open Hi Conga"},       {name:"Low Conga"},        {name:"High Timbale"},   {name:"Low Timbale"},
-      {name:"High Agogo"},          {name:"Low Agogo"},        {name:"Cabasa"},         {name:"Maracas"},
-      {name:"Short Whistle"},       {name:"Long Whistle"},     {name:"Short Guiro"},    {name:"Long Guiro"},
-      {name:"Claves"},              {name:"Hi Wood Block"},    {name:"Low Wood Block"}, {name:"Mute Cuica"},
-      {name:"Open Cuica"},          {name:"Mute Triangle"},    {name:"Open Triangle"},
-    ],
+    program:[],
+    drummap:[],
     program1:[
       // 1-8 : Piano
       [{w:"sine",v:.4,d:0.7,r:0.1,},{w:"triangle",v:3,d:0.7,s:0.1,g:1,a:0.01,k:-1.2}],
@@ -505,7 +410,6 @@ function WebAudioTinySynth(opt){
           }
         }.bind(this),60
       );
-      console.log("internalcontext:"+this.internalcontext)
       if(this.internalcontext){
         window.AudioContext = window.AudioContext || window.webkitAudioContext;
         this.setAudioContext(new AudioContext());
@@ -531,61 +435,6 @@ function WebAudioTinySynth(opt){
     setVoices:function(v){
       this.voices=v;
     },
-    getPlayStatus:function(){
-      return {play:this.playing, maxTick:this.maxTick, curTick:this.playTick};
-    },
-    locateMIDI:function(tick){
-      var i,p=this.playing;
-      this.stopMIDI();
-      for(i=0;i<this.song.ev.length && tick>this.song.ev[i].t;++i){
-        var m=this.song.ev[i];
-        var ch=m.m[0]&0xf;
-        switch(m.m[0]&0xf0){
-        case 0xb0:
-          switch(m.m[1]){
-          case 1:  this.setModulation(ch,m.m[2]); break;
-          case 7:  this.setChVol(ch,m.m[2]); break;
-          case 10: this.setPan(ch,m.m[2]); break;
-          case 11: this.setExpression(ch,m.m[2]); break;
-          case 64: this.setSustain(ch,m.m[2]); break;
-          }
-          break;
-        case 0xc0: this.pg[m.m[0]&0x0f]=m.m[1]; break;
-        }
-        if(m.m[0]==0xff51)
-          this.song.tempo=m.m[1];
-      }
-      if(!this.song.ev[i]){
-        this.playIndex=0;
-        this.playTick=this.maxTick;
-      }
-      else{
-        this.playIndex=i;
-        this.playTick=this.song.ev[i].t;
-      }
-      if(p)
-        this.playMIDI();
-    },
-    getTimbreName:function(m,n){
-      if(m==0)
-        return this.program[n].name;
-      else
-        return this.drummap[n-35].name;
-    },
-    loadMIDIUrl:function(url){
-      if(!url)
-        return;
-      var xhr=new XMLHttpRequest();
-      xhr.open("GET",url,true);
-      xhr.responseType="arraybuffer";
-      xhr.loadMIDI=this.loadMIDI.bind(this);
-      xhr.onload=function(e){
-        if(this.status==200){
-          this.loadMIDI(this.response);
-        }
-      };
-      xhr.send();
-    },
     reset:function(){
       for(var i=0;i<16;++i){
         this.setProgram(i,0);
@@ -597,134 +446,6 @@ function WebAudioTinySynth(opt){
         this.rhythm[i]=0;
       }
       this.rhythm[9]=1;
-    },
-    stopMIDI:function(){
-      this.playing=0;
-      for(var i=0;i<16;++i)
-        this.allSoundOff(i);
-    },
-    playMIDI:function(){
-      if(!this.song)
-        return;
-      var dummy=this.actx.createOscillator();
-      dummy.connect(this.actx.destination);
-      dummy.frequency.value=0;
-      dummy.start(0);
-      dummy.stop(this.actx.currentTime+0.001);
-      if(this.playTick>=this.maxTick)
-        this.playTick=0,this.playIndex=0;
-      this.playTime=this.actx.currentTime+.1;
-      this.tick2Time=4*60/this.song.tempo/this.song.timebase;
-      this.playing=1;
-    },
-    loadMIDI:function(data){
-      function Get2(s, i) { return (s[i]<<8) + s[i+1]; }
-      function Get3(s, i) { return (s[i]<<16) + (s[i+1]<<8) + s[i+2]; }
-      function Get4(s, i) { return (s[i]<<24) + (s[i+1]<<16) + (s[i+2]<<8) + s[i+3]; }
-      function GetStr(s, i, len) {
-        return String.fromCharCode.apply(null,s.slice(i,i+len));
-      }
-      function Delta(s, i) {
-        var v, d;
-        v = 0;
-        datalen = 1;
-        while((d = s[i]) & 0x80) {
-          v = (v<<7) + (d&0x7f);
-          ++datalen;
-          ++i;
-        }
-        return (v<<7)+d;
-      }
-      function Msg(song,tick,s,i){
-        var v=s[i];
-        datalen=1;
-        if((v&0x80)==0)
-          v=runst,datalen=0;
-        runst=v;
-        switch(v&0xf0){
-        case 0xc0: case 0xd0:
-          song.ev.push({t:tick,m:[v,s[i+datalen]]});
-          datalen+=1;
-          break;
-        case 0xf0:
-          switch(v) {
-          case 0xf0:
-          case 0xf7:
-            var len=Delta(s,i+1);
-            datastart=1+datalen;
-            var exd=Array.from(s.slice(i+datastart,i+datastart+len));
-            exd.unshift(0xf0);
-            song.ev.push({t:tick,m:exd});
-/*
-            var sysex=[];
-            for(var jj=0;jj<len;++jj)
-              sysex.push(s[i+datastart+jj].toString(16));
-            console.log(sysex);
-*/
-            datalen+=len+1;
-            break;
-          case 0xff:
-            var len = Delta(s, i + 2);
-            datastart = 2+datalen;
-            datalen = len+datalen+2;
-            switch(s[i+1]) {
-            case 0x02: song.copyright+=GetStr(s, i + datastart, datalen - 3); break;
-            case 0x01: case 0x03: case 0x04: case 0x09:
-              song.text=GetStr(s, i + datastart, datalen - datastart);
-              break;
-            case 0x2f:
-              return 1;
-            case 0x51:
-              var val = Math.floor(60000000 / Get3(s, i + 3));
-              song.ev.push({t:tick, m:[0xff51, val]});
-              break;
-            }
-            break;
-          }
-          break;
-        default:
-          song.ev.push({t:tick,m:[v,s[i+datalen],s[i+datalen+1]]});
-          datalen+=2;
-        }
-        return 0;
-      }
-      this.stopMIDI();
-      var s=new Uint8Array(data);
-      var datalen = 0, datastart = 0, runst = 0x90;
-      var idx = 0;
-      var hd = s.slice(0,  4);
-      if(hd.toString()!="77,84,104,100")  //MThd
-        return;
-      var len = Get4(s, 4);
-      var fmt = Get2(s, 8);
-      var numtrk = Get2(s, 10);
-      this.maxTick=0;
-      var tb = Get2(s, 12)*4;
-      idx = (len + 8);
-      this.song={copyright:"",text:"",tempo:120,timebase:tb,ev:[]};
-      for(var tr=0;tr<numtrk;++tr){
-        hd=s.slice(idx, idx+4);
-        len=Get4(s, idx+4);
-        if(hd.toString()=="77,84,114,107") {//MTrk
-          var tick = 0;
-          var j = 0;
-          this.notetab.length = 0;
-          for(;;) {
-            tick += Delta(s, idx + 8 + j);
-            j += datalen;
-            var e = Msg(this.song, tick, s, idx + 8 + j);
-            j += datalen;
-            if(e)
-              break;
-          }
-          if(tick>this.maxTick)
-            this.maxTick=tick;
-        }
-        idx += (len+8);
-      }
-      this.song.ev.sort(function(x,y){return x.t-y.t});
-      this.reset();
-      this.locateMIDI(0);
     },
     setQuality:function(q){
       var i,k,n,p;
@@ -755,9 +476,9 @@ function WebAudioTinySynth(opt){
         return p;
       }
       if(m && n>=35 && n<=81)
-        this.drummap[n-35].p=filldef(p);
+        this.drummap[n-35] = filldef(p);
       if(m==0 && n>=0 && n<=127)
-        this.program[n].p=filldef(p);
+        this.program[n] = filldef(p);
     },
     _pruneNote:function(nt){
       for(var k=nt.o.length-1;k>=0;--k){
@@ -943,10 +664,10 @@ function WebAudioTinySynth(opt){
       t=this._tsConv(t);
       if(this.rhythm[ch]){
         if(n>=35&&n<=81)
-          this._note(t,ch,n,v,this.drummap[n-35].p);
+          this._note(t,ch,n,v,this.drummap[n-35]);
         return;
       }
-      this._note(t,ch,n,v,this.program[this.pg[ch]].p);
+      this._note(t,ch,n,v,this.program[this.pg[ch]]);
     },
     noteOff:function(ch,n,t){
       if(this.rhythm[ch])
@@ -1020,13 +741,11 @@ function WebAudioTinySynth(opt){
           var ds=[];
           for(var ii=0;ii<msg.length;++ii)
             ds.push(msg[ii].toString(16));
-          console.log(ds);
         }
         if(msg[1]==0x41&&msg[2]==0x10&&msg[3]==0x42&&msg[4]==0x12&&msg[5]==0x40){
           if((msg[6]&0xf0)==0x10&&msg[7]==0x15){
             var ch=[9,0,1,2,3,4,5,6,7,8,10,11,12,13,14,15][msg[6]&0xf];
             this.rhythm[ch]=msg[8];
-//            console.log("UseForRhythmPart("+ch+")="+msg[8]);
           }
         }
         break;
@@ -1048,7 +767,6 @@ function WebAudioTinySynth(opt){
       if(!dest)
         this.dest=actx.destination;
       this.tsdiff=performance.now()*.001-this.actx.currentTime;
-      console.log("TSDiff:"+this.tsdiff);
       this.out=this.actx.createGain();
       this.comp=this.actx.createDynamicsCompressor();
       var blen=this.actx.sampleRate*.5|0;
