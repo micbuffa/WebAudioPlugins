@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.0.9';
+  var _ver = '1.1.1';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -216,17 +216,42 @@
             pp[i]++;
           }
           if (pp[i] >= tt[i].length) continue;
-          if(b) m = tt[i][pp[i]].tt;
+          if (b) m = tt[i][pp[i]].tt;
           b = false;
-          if(m > tt[i][pp[i]].tt) m = tt[i][pp[i]].tt;
+          if (m > tt[i][pp[i]].tt) m = tt[i][pp[i]].tt;
         }
         t = m;
         if (b) break;
       }
     }
-    if (pl.ppqn) pl.mul = pl.ppqn / 500.0;
-    else pl.mul = pl.fps * pl.ppf / 1000.0;
     pl._duration = t;
+    pl._ttt = [];
+    if (pl.ppqn) {
+      pl.mul = pl.ppqn / 500.0; // 120 bpm
+      m = pl.mul;
+      t = 0;
+      pl._durationMS = 0;
+      pl._ttt.push({ t: 0, m: m, ms: 0 });
+      for (i = 0; i < pl._data.length; i++) {
+        e = pl._data[i];
+        if (e.ff == 0x51) {
+          pl._durationMS += (e.tt - t) / m;
+          t = e.tt;
+          m = this.ppqn * 1000.0 / ((e.dd.charCodeAt(0) << 16) + (e.dd.charCodeAt(1) << 8) + e.dd.charCodeAt(2));
+          pl._ttt.push({ t: t, m: m, ms: pl._durationMS });
+        }
+      }
+      pl._durationMS += (pl._duration - t) / m;
+    }
+    else {
+      pl.mul = pl.fps * pl.ppf / 1000.0; // 1s = fps*ppf ticks
+      pl._ttt.push({ t: 0, m: pl.mul, ms: 0 });
+      pl._durationMS = t / pl.mul;
+    }
+    pl._ttt.push({ t: pl._duration, m: 0, ms: pl._durationMS });
+    if (!pl._durationMS) pl._durationMS = 1;
+    pl._type = this.type;
+    pl._tracks = tt.length;
     return pl;
   };
 
@@ -476,6 +501,7 @@
     self._loop = 0;
     self._data = [];
     self._pos = 0;
+    self._ms = 0;
     self._tick = (function(x) { return function(){ x.tick(); }; })(self);
     for (var k in Player.prototype) if (Player.prototype.hasOwnProperty(k)) self[k] = Player.prototype[k];
     return self;
@@ -492,12 +518,16 @@
     this.paused = false;
     this._ptr = 0;
     this._pos = 0;
+    this._ms = 0;
     this._p0 = 0;
-    this._t0 = _now();
+    this._st = _now();
+    this._t0 = this._st;
     this.tick();
   };
   Player.prototype.stop = function() {
     this._pos = 0;
+    this._ms = 0;
+    this.playing = false;
     this.event = 'stop';
     this.paused = undefined;
   };
@@ -508,7 +538,8 @@
     if (this.playing) return;
     if (this.paused) {
       this.event = undefined;
-      this._t0 = _now();
+      this._st = _now();
+      this._t0 = this._st;
       this.playing = true;
       this.paused = false;
       this.tick();
@@ -538,6 +569,8 @@
         this._ptr = 0;
         this._p0 = 0;
         this._t0 = t;
+        this._st = t;
+        this._ms = 0;
       }
       else this.stop();
       this.onEnd();
@@ -546,6 +579,7 @@
       this.playing = false;
       this.paused = false;
       this._pos = 0;
+      this._ms = 0;
       this._ptr = 0;
       this.sndOff();
       this.event = undefined;
@@ -553,6 +587,7 @@
     if (this.event == 'pause') {
       this.playing = false;
       this.paused = true;
+      this._ms += _now() - this._st;
       if (this._pos >= this._duration) this._pos = this._duration - 1;
       this._p0 = this._pos;
       this.sndOff();
@@ -560,16 +595,45 @@
     }
     if (this.playing) JZZ.lib.schedule(this._tick);
   };
+  Player.prototype.type = function() { return this._type; };
+  Player.prototype.tracks = function() { return this._tracks; };
   Player.prototype.duration = function() { return this._duration; };
+  Player.prototype.durationMS = function() { return this._durationMS; };
   Player.prototype.position = function() { return this._pos; };
-  Player.prototype.jump = function(pos) {
-    if (isNaN(parseFloat(pos))) _error('Not a number: ' + pos);
-    if (pos < 0) pos = 0;
-    if (pos >= this._duration) pos = this._duration - 1;
-    this._pos = pos;
-    this._p0 = pos;
+  Player.prototype.positionMS = function() { return this.playing ? this._ms + _now() - this._st : this._ms; };
+  Player.prototype.jump = function(t) {
+    if (isNaN(parseFloat(t))) _error('Not a number: ' + t);
+    if (t < 0) t = 0.0;
+    if (t >= this._duration) t = this._duration - 1;
+    this._goto(t, this._t2ms(t));
+  };
+  Player.prototype.jumpMS = function(ms) {
+    if (isNaN(parseFloat(ms))) _error('Not a number: ' + ms);
+    if (ms < 0) ms = 0.0;
+    if (ms >= this._durationMS) ms = this._durationMS - 1;
+    this._goto(this._ms2t(ms), ms);
+  };
+  Player.prototype._t2ms = function(t) {
+    if (!t) return 0.0;
+    var i;
+    for (i = 0; this._ttt[i].t < t; i++) ;
+    i--;
+    return this._ttt[i].ms + (t - this._ttt[i].t) / this._ttt[i].m;
+  };
+  Player.prototype._ms2t = function(ms) {
+    if (!ms) return 0.0;
+    var i;
+    for (i = 0; this._ttt[i].ms < ms; i++) ;
+    i--;
+    return this._ttt[i].t + (ms - this._ttt[i].ms) * this._ttt[i].m;
+  };
+  Player.prototype._goto = function(t, ms) {
+    this._pos = t;
+    this._ms = ms;
+    this._p0 = t;
     this._t0 = _now();
-    if (!this.playing) this.paused = !!pos;
+    this._st = this._t0;
+    if (!this.playing) this.paused = !!t;
     this._toPos();
     if (this.playing) this.sndOff();
   };
@@ -582,6 +646,18 @@
         this._p0 = this._pos - (_now() - this._t0) * this.mul;
       }
     }
+  };
+  Player.prototype.tick2ms = function(t) {
+    if (isNaN(parseFloat(t))) _error('Not a number: ' + t);
+    if (t <= 0) return 0.0;
+    if (t >= this._duration) return this._durationMS;
+    return this._t2ms(t);
+  };
+  Player.prototype.ms2tick = function(t) {
+    if (isNaN(parseFloat(t))) _error('Not a number: ' + t);
+    if (t <= 0) return 0.0;
+    if (t >= this._durationMS) return this._duration;
+    return this._ms2t(t);
   };
   JZZ.MIDI.SMF = SMF;
 });
