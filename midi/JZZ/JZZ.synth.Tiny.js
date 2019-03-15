@@ -14,7 +14,7 @@
   if (!JZZ.synth) JZZ.synth = {};
   if (JZZ.synth.Tiny) return;
 
-  var _version = '1.0.5';
+  var _version = '1.0.8';
 
 function WebAudioTinySynth(opt){
   this.__proto__ = this.sy =
@@ -482,21 +482,21 @@ function WebAudioTinySynth(opt){
     },
     _pruneNote:function(nt){
       for(var k=nt.o.length-1;k>=0;--k){
-        if(nt.o[k].frequency) {
+        if(nt.o[k].frequency){
+          nt.o[k].frequency.cancelScheduledValues(0);
+        }
+        else{
+          nt.o[k].playbackRate.cancelScheduledValues(0);
+        }
+        nt.g[k].gain.cancelScheduledValues(0);
+
+        nt.o[k].stop();
+        if(nt.o[k].detune) {
           try {
             this.chmod[nt.ch].disconnect(nt.o[k].detune);
-          } catch (e) {} // this was crashing after calling setAudioContext()
+          } catch (c) {}
         }
-        nt.o[k].disconnect();
-        if(nt.o[k].frequency)
-          nt.o[k].frequency.cancelScheduledValues(0);
-        else
-          nt.o[k].playbackRate.cancelScheduledValues(0);
-        nt.o[k].stop(0);
-      }
-      for(var k=nt.g.length-1;k>=0;--k){
-        nt.g[k].disconnect();
-        nt.g[k].gain.cancelScheduledValues(0);
+        nt.g[k].gain.value = 0;
       }
     },
     _limitVoices:function(ch,n){
@@ -514,10 +514,12 @@ function WebAudioTinySynth(opt){
       }
     },
     _note:function(t,ch,n,v,p){
-      var o=[],g=[],vp=[],fp=[],r=[],i,out,sc,pn;
+      var self = this;
+      var out,sc,pn;
+      var o=[],g=[],vp=[],fp=[],r=[];
       var f=440*Math.pow(2,(n-69)/12);
       this._limitVoices(ch,n);
-      for(i=0;i<p.length;++i){
+      for(var i=0;i<p.length;++i){
         pn=p[i];
         var dt=t+pn.a+pn.h;
         if(pn.g==0)
@@ -536,6 +538,8 @@ function WebAudioTinySynth(opt){
           o[i].playbackRate.value=fp[i]/440;
           if(pn.p!=1)
             this._setParamTarget(o[i].playbackRate,fp[i]/440*pn.p,t,pn.q);
+          this.chmod[ch].connect(o[i].detune);
+          o[i].detune.value=this.bend[ch];
           break;
         default:
           o[i]=this.actx.createOscillator();
@@ -565,8 +569,15 @@ function WebAudioTinySynth(opt){
           g[i].gain.setValueAtTime(vp[i],t);
         this._setParamTarget(g[i].gain,pn.s*vp[i],dt,pn.d);
         o[i].start(t);
-        if(this.rhythm[ch])
+        if(this.rhythm[ch]){
+          // difference between '()=>' and 'function()' 
+          var _ch = ch;
+          var _oi = o[i];
+          o[i].onended = function() {
+              self.chmod[_ch].disconnect(_oi.detune);
+          };
           o[i].stop(t+p[0].d*this.releaseRatio);
+        }
       }
       if(!this.rhythm[ch])
         this.notetab.push({t:t,e:99999,ch:ch,n:n,o:o,g:g,t2:t+pn.a,v:vp,r:r,f:0});

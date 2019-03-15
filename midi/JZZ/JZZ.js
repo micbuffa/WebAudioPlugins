@@ -13,7 +13,7 @@
 })(this, function() {
 
   var _scope = typeof window === 'undefined' ? global : window;
-  var _version = '0.6.6';
+  var _version = '0.7.1';
   var i, j, k, m, n;
 
   var _time = Date.now || function () { return new Date().getTime(); };
@@ -532,19 +532,26 @@
   }
   // Web MIDI API
   function _tryWebMIDI() {
-    if (navigator.requestMIDIAccess && navigator.requestMIDIAccess != JZZ.requestMIDIAccess) {
-      var self = this;
-      var onGood = function(midi) {
-        _initWebMIDI(midi);
-        self._resume();
-      };
-      var onBad = function(msg) {
-        self._crash(msg);
-      };
-      var opt = {};
-      navigator.requestMIDIAccess(opt).then(onGood, onBad);
-      this._pause();
-      return;
+    if (navigator.requestMIDIAccess) {
+      var native = true;
+      try {
+        if (navigator.requestMIDIAccess.toString().indexOf('JZZ(') != -1) native = false;
+      }
+      catch (err) {}
+      if (native) {
+        var self = this;
+        var onGood = function(midi) {
+          _initWebMIDI(midi);
+          self._resume();
+        };
+        var onBad = function(msg) {
+          self._crash(msg);
+        };
+        var opt = {};
+        navigator.requestMIDIAccess(opt).then(onGood, onBad);
+        this._pause();
+        return;
+      }
     }
     this._break();
   }
@@ -1468,6 +1475,7 @@
   function _throw(x) { throw RangeError('Bad MIDI value: ' + x); }
   function _ch(n) { if (n != parseInt(n) || n < 0 || n > 0xf) _throw(n); return parseInt(n); }
   function _7b(n, m) { if (n != parseInt(n) || n < 0 || n > 0x7f) _throw(typeof m == 'undefined' ? n : m); return parseInt(n); }
+  function _8b(n, m) { if (n != parseInt(n) || n < 0 || n > 0xff) _throw(typeof m == 'undefined' ? n : m); return parseInt(n); }
   function _lsb(n) { if (n != parseInt(n) || n < 0 || n > 0x3fff) _throw(n); return parseInt(n) & 0x7f; }
   function _msb(n) { if (n != parseInt(n) || n < 0 || n > 0x3fff) _throw(n); return parseInt(n) >> 7; }
   function _8bs(s) { s = '' + s; for (var i = 0; i < s.length; i++) if (s.charCodeAt(i) > 255) _throw(s[i]); return s; }
@@ -1520,7 +1528,7 @@
   };
   function _smf(ff, dd) {
     var midi = new MIDI();
-    midi.ff = _7b(ff);
+    midi.ff = _8b(ff);
     midi.dd = typeof dd == 'undefined' ? '' : _8bs(dd);
     return midi;
   }
@@ -1528,21 +1536,11 @@
     smf: function(arg) {
       if (arg instanceof MIDI) return new MIDI(arg);
       var arr = arg instanceof Array ? arg : arguments;
-      var ff = _7b(arr[0]);
+      var ff = _8b(arr[0]);
       var dd = '';
       if (arr.length == 2) dd = _2s(arr[1]);
       else if (arr.length > 2) dd = _2s(Array.prototype.slice.call(arr, 1));
-      var f = {
-        0: _helperSMF.smfSeqNumber,
-        32: _helperSMF.smfChannelPrefix,
-        47: _helperSMF.smfEndOfTrack,
-        81: _helperSMF.smfTempo,
-        84: _helperSMF.smfSMPTE,
-        88: _helperSMF.smfTimeSignature,
-        89: _helperSMF.smfKeySignature,
-        127: _helperSMF.smfMetaEvent
-      }[ff];
-      return f ? f(typeof dd == 'undefined' ? '' : _8bs(dd)) : _smf(ff, dd);
+      return _smf(ff, dd);
     },
     smfSeqNumber: function(dd) {
       if (dd == parseInt(dd)) {
@@ -2560,7 +2558,7 @@
     return this;
   };
 
-  JZZ.requestMIDIAccess = function() {
+  JZZ.requestMIDIAccess = function(opt) {
     var wma;
     var counter;
     function ready() { _wma = wma; for (var i = 0; i < _resolves.length; i++) _resolves[i](_wma); }
@@ -2571,7 +2569,7 @@
         _resolves.push(resolve);
         if (_resolves.length == 1) {
           wma = new MIDIAccess();
-          JZZ().or(ready).and(function() {
+          JZZ(opt).or(ready).and(function() {
             var info = this.info();
             counter = info.inputs.length + info.outputs.length;
             if (!counter) { ready(); return; }
