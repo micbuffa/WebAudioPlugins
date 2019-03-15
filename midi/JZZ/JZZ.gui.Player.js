@@ -20,6 +20,7 @@
     this.div = document.createElement('div');
     this.div.style.display = 'inline-block';
     this.div.style.position = 'absolute';
+    this.div.style.boxSizing = 'content-box';
     this.div.style.top = '8px';
     this.div.style.margin = '0';
     this.div.style.padding = '2px';
@@ -54,6 +55,7 @@
   var svg_loop = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>';
   var svg_more = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z"/></svg>';
   var svg_open = '<svg fill="#555" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0V0z"/><path d="M10 4H2v16h20V6H12l-2-2z"/></svg>';
+  var svg_link = '<svg fill="#555" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z"/><path fill="none" d="M0 0h24v24H0z"/></svg>';
   var svg_close = '<svg stroke="#ff8" xmlns="http://www.w3.org/2000/svg" width="7" height="7" viewBox="0 0 7 7"><line x1="1" y1="1" x2="6" y2="6"/><line x1="1" y1="6" x2="6" y2="1"/></svg>';
 
   function _stopProp(e) { e.stopPropagation(); e.preventDefault(); }
@@ -62,6 +64,7 @@
     self.gui = document.createElement('div');
     self.gui.style.display = 'inline-block';
     self.gui.style.position = 'relative';
+    self.gui.style.boxSizing = 'content-box';
     self.gui.style.margin = '0px';
     self.gui.style.padding = '0px';
     self.gui.style.borderStyle = 'none';
@@ -136,6 +139,14 @@
     }
     else self.midiBtn = _noBtn;
 
+    if (arg.link) {
+      self.linkBtn = new Btn(svg_link);
+      self.linkBtn.div.style.left = right + 'px';
+      right -= step;
+      self.linkBtn.div.title = 'link';
+      self.gui.appendChild(self.linkBtn.div);
+    }
+
     if (arg.file) {
       self.fileBtn = new Btn(svg_open);
       self.fileBtn.div.style.left = right + 'px';
@@ -165,6 +176,7 @@
       self.closeBtn = document.createElement('div');
       self.closeBtn.style.display = 'inline-block';
       self.closeBtn.style.position = 'absolute';
+      self.closeBtn.style.boxSizing = 'content-box';
       self.closeBtn.style.top = '1px';
       self.closeBtn.style.left = '262px';
       self.closeBtn.style.margin = '0';
@@ -185,6 +197,7 @@
     self.rail = document.createElement('div');
     self.rail.style.display = 'inline-block';
     self.rail.style.position = 'absolute';
+    self.rail.style.boxSizing = 'content-box';
     self.rail.style.top = '19px';
     self.rail.style.left = (left + 5) + 'px';
     self.rail.style.width = self.rlen + 'px';
@@ -200,6 +213,7 @@
     self.caret = document.createElement('div');
     self.caret.style.display = 'inline-block';
     self.caret.style.position = 'absolute';
+    self.caret.style.boxSizing = 'content-box';
     self.caret.style.width = '2px';
     self.caret.style.height = '2px';
     self.caret.style.top = '-5px';
@@ -230,11 +244,12 @@
       stop: true,
       loop: true,
       file: false,
+      link: false,
       midi: true,
       close: false,
       connect: true
     };
-    for (var k in arg) if (arg.hasOwnProperty(k) && typeof x[k] != 'undefined') arg[k] = x[k];
+    if (typeof x == 'object') for (var k in arg) if (arg.hasOwnProperty(k) && typeof x[k] != 'undefined') arg[k] = x[k];
     if (typeof arg.at == 'undefined') arg.at = x;
     if (typeof arg.x == 'undefined') arg.x = x;
     if (typeof arg.y == 'undefined') arg.y = y;
@@ -255,13 +270,13 @@
     catch(e) {}
 
     if (arg.x != parseInt(arg.x) || arg.y != parseInt(arg.y)) {
-      arg.x = _floating * 45 + 5;
-      arg.y = _floating * 15 + 5;
+      arg.x = _floating * 15 + 5;
+      arg.y = _floating * 45 + 5;
       _floating++;
     }
     this.gui.style.position = 'fixed';
-    this.gui.style.top = arg.x + 'px';
-    this.gui.style.left = arg.y + 'px';
+    this.gui.style.top = arg.y + 'px';
+    this.gui.style.left = arg.x + 'px';
     this.gui.style.opacity = 0.9;
     var self = this;
     this.gui.addEventListener('mousedown', function(e) { self._startmove(e); });
@@ -417,9 +432,37 @@
       }
     }
   };
-  Player.prototype.destroy = function(n) {
+  Player.prototype.onClose = function() {};
+  Player.prototype.destroy = function() {
     this.stop();
+    if (this._out) {
+      var out = this._out;
+      JZZ.lib.schedule(function() { out.close(); });
+    }
     this.gui.parentNode.removeChild(this.gui);
+    this.onClose();
+  };
+
+  Player.prototype.setUrl = function(url, name) {
+    if (this.linkBtn) {
+      if (this._url) {
+        this.linkBtn.div.appendChild(this._url.firstChild);
+        this.linkBtn.div.removeChild(this._url);
+        this._url = undefined;
+      }
+      if (typeof url == 'undefined') this.linkBtn.disable();
+      else {
+        this.linkBtn.off();
+        this._url = document.createElement('a');
+        this._url.target = '_blank';
+        this._url.appendChild(this.linkBtn.div.firstChild);
+        this.linkBtn.div.appendChild(this._url);
+        this._url.href = url;
+        if (!this._url.dataset) this._url.dataset = {};
+        this._url.dataset.jzzGuiPlayer = true;
+        if (typeof name != 'undefined') this._url.download = name;
+      }
+    }
   };
 
   Player.prototype.readFile = function(f) {
@@ -433,6 +476,7 @@
         var smf = new JZZ.MIDI.SMF(data);
         self.stop();
         JZZ.lib.schedule(function() { self.load(smf); });
+        if (self.linkBtn) self.setUrl('data:audio/midi;base64,' + JZZ.lib.toBase64(data), f.name);
       }
       catch (err) {}
     };
@@ -471,6 +515,7 @@
       if (self._out) {
         if (self._playing) for (var c = 0; c < 16; c++) self._out._receive(JZZ.MIDI.allSoundOff(c));
         self._disconnect(self._out);
+        self._out.close();
       }
       self._out = this;
       self._connect(this);
@@ -546,7 +591,7 @@
 
   Player.prototype._mousedown = function(e) {
     if (_lftBtnDn(e) && this._player) {
-      e.preventDefault();
+      if (!this._more) e.preventDefault();
       this.caret.style.backgroundColor = '#ddd';
       this._wasPlaying = this._playing;
       this._player.pause();
@@ -556,7 +601,7 @@
   };
   Player.prototype._startmove = function(e) {
     if (_lftBtnDn(e)) {
-      e.preventDefault();
+      if (!this._more) e.preventDefault();
       this._startX = parseInt(this.gui.style.left);
       this._startY = parseInt(this.gui.style.top);
       this._clickX = e.clientX;
@@ -582,6 +627,12 @@
     }
   };
   Player.prototype._mousemove = function(e) {
+    if (this._more) {
+      this._startX = undefined;
+      this._startY = undefined;
+      this._clickX = undefined;
+      this._clickY = undefined;
+    }
     if (this._player && typeof this._caretX != 'undefined') {
       e.preventDefault();
       var to = this._caretPos + e.clientX - this._caretX;
