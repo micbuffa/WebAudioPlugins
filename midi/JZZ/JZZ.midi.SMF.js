@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.1.5';
+  var _ver = '1.1.6';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -90,9 +90,14 @@
     return smf;
   };
 
+  function _issue(off, msg, data, tick) {
+    var w = { off: off, msg: msg, data: data };
+    if (typeof tick != 'undefined') w.tick = tick;
+    return w;
+  }
   SMF.prototype._complain = function(off, msg, data) {
     if (!this._warn) this._warn = [];
-    this._warn.push({ off: off, msg: msg, data: data });
+    this._warn.push(_issue(off, msg, data));
   };
   SMF.prototype.load = function(s) {
     var off = 0;
@@ -107,7 +112,6 @@
   var MThd0006 = 'MThd' + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(6);
   SMF.prototype.loadSMF = function(s, off) {
     if (!s.length) _error('Empty file');
-    off = off;
     if (s.substr(0, 8) != MThd0006) {
       var z = s.indexOf(MThd0006);
       if (z != -1) {
@@ -136,6 +140,10 @@
       var type = s.substr(p, 4);
       if (type == 'MTrk') n++;
       var len = (s.charCodeAt(p + 4) << 24) + (s.charCodeAt(p + 5) << 16) + (s.charCodeAt(p + 6) << 8) + s.charCodeAt(p + 7);
+      if (len <= 0) { // broken file
+        len = s.length - p - 8;
+        this._complain(p + off + 4, 'Invalid track length', s.charCodeAt(p + 4) + '/' + s.charCodeAt(p + 5) + '/' + s.charCodeAt(p + 6) + '/' + s.charCodeAt(p + 7));
+      }
       p += 8;
       var data = s.substr(p, len);
       this.push(new Chunk(type, data, offset));
@@ -158,17 +166,13 @@
     return ret;
   }
   SMF.prototype.validate = function() {
-    var i, j, k, z;
+    var i, j, k;
     var w = [];
     if (this._warn) for (i = 0; i < this._warn.length; i++) w.push(_copy(this._warn[i]));
     k = 0;
     for (i = 0; i < this.length; i++) if (this[i] instanceof MTrk) {
       k++;
-      if (this[i]._warn) for (j = 0; j < this[i]._warn.length; j++) {
-        z = _copy(this[i]._warn[j]);
-        z.track = k;
-        w.push(z);
-      }
+      this[i]._validate(w, k);
     }
     w.sort(function(a, b) {
       return (a.off || 0) - (b.off || 0) || (a.track || 0) - (b.track || 0) || (a.tick || 0) - (b.tick || 0);
@@ -429,11 +433,74 @@
     for (var i = 0; i < this.length; i++) trk.push(new JZZ.MIDI(this[i]));
     return trk;
   };
+  function _metaevent_len(msg, name, len) {
+    if (msg.dd.length < len) return _issue(msg._off, 'Invalid ' + name + ' meta event: ' + (msg.dd.length ? 'data too short' : 'no data'), msg.toString(), msg.tt);
+    if (msg.dd.length > len) return _issue(msg._off, 'Invalid ' + name + ' meta event: data too long', msg.toString(), msg.tt);
+  }
+  function _validate_midi(msg) {
+    var issue;
+    if (typeof msg.ff != 'undefined') {
+      if (msg.ff > 0x7f) return _issue(msg._off, 'Invalid meta event', msg.toString(), msg.tt);
+      else if (msg.ff == 0) {
+        issue = _metaevent_len(msg, 'Sequence Number', 2); if (issue) return issue;
+      }
+      else if (msg.ff < 10) {
+        if (!msg.dd.length) return _issue(msg._off, 'Invalid Text meta event: no data', msg.toString(), msg.tt);
+      }
+      else if (msg.ff == 32) {
+        issue = _metaevent_len(msg, 'Channel Prefix', 1); if (issue) return issue;
+        if (msg.dd.charCodeAt(0) > 15) return _issue(msg._off, 'Invalid Channel Prefix meta event: incorrect data', msg.toString(), msg.tt);
+      }
+      else if (msg.ff == 33) {
+        issue = _metaevent_len(msg, 'MIDI Port', 1); if (issue) return issue;
+        if (msg.dd.charCodeAt(0) > 127) return _issue(msg._off, 'Invalid MIDI Port meta event: incorrect data', msg.toString(), msg.tt);
+      }
+      else if (msg.ff == 47) {
+        issue = _metaevent_len(msg, 'End of Track', 0); if (issue) return issue;
+      }
+      else if (msg.ff == 81) {
+        issue = _metaevent_len(msg, 'Tempo', 3); if (issue) return issue;
+      }
+      else if (msg.ff == 84) {
+        issue = _metaevent_len(msg, 'SMPTE', 5); if (issue) return issue;
+        if (msg.dd.charCodeAt(0) >= 24 || msg.dd.charCodeAt(1) >= 60 || msg.dd.charCodeAt(2) >= 60 || msg.dd.charCodeAt(3) >= 30 || msg.dd.charCodeAt(4) >= 200 || msg.dd.charCodeAt(4) % 25) return _issue(msg._off, 'Invalid SMPTE meta event: incorrect data', msg.toString(), msg.tt);
+      }
+      else if (msg.ff == 88) {
+        issue = _metaevent_len(msg, 'Time Signature', 4); if (issue) return issue;
+        if (msg.dd.charCodeAt(1) > 8) return _issue(msg._off, 'Invalid Time Signature meta event: incorrect data', msg.toString(), msg.tt);
+      }
+      else if (msg.ff == 89) {
+        issue = _metaevent_len(msg, 'Key Signature', 2); if (issue) return issue;
+        if (msg.dd.charCodeAt(1) > 1 || msg.dd.charCodeAt(0) > 255 || (msg.dd.charCodeAt(0) > 7 && msg.dd.charCodeAt(0) < 249)) return _issue(msg._off, 'Invalid Key Signature meta event: incorrect data', msg.toString(), msg.tt);
+      }
+      else if (msg.ff == 127) {
+        // Sequencer Specific meta event
+      }
+      else {
+        return _issue(msg._off, 'Unknown meta event', msg.toString(), msg.tt);
+      }
+    }
+    else {
+    }
+  }
+  MTrk.prototype._validate = function(w, k) {
+    var i, z;
+    if (this._warn) for (i = 0; i < this._warn.length; i++) {
+      z = _copy(this._warn[i]);
+      z.track = k;
+      w.push(z);
+    }
+    for (i = 0; i < this.length; i++) {
+      z = _validate_midi(this[i]);
+      if (z) {
+        z.track = k;
+        w.push(z);
+      }
+    }
+  };
   MTrk.prototype._complain = function(off, msg, data, tick) {
     if (!this._warn) this._warn = [];
-    var w = { off: off, msg: msg, data: data };
-    if (typeof tick != 'undefined') w.tick = tick;
-    this._warn.push(w);
+    this._warn.push(_issue(off, msg, data, tick));
   };
   MTrk.prototype.dump = function() {
     var s = '';

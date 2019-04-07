@@ -14,7 +14,7 @@
   if (JZZ.gui.Player) return;
 
   function empty() {}
-  var _noBtn = { on: empty, off: empty, disable: empty, div: {} };
+  var _noBtn = { on: empty, off: empty, disable: empty, title: empty, div: {} };
 
   function Btn(html) {
     this.div = document.createElement('div');
@@ -49,6 +49,7 @@
     this.div.style.borderColor = '#aaa';
     this.div.firstChild.style.fill = '#555';
   };
+  Btn.prototype.title = function(s) { this.div.title = s; };
   var svg_play = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/><path d="M0 0h24v24H0z" fill="none"/></svg>';
   var svg_pause = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/><path d="M0 0h24v24H0z" fill="none"/></svg>';
   var svg_stop = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M6 6h12v12H6z"/></svg>';
@@ -124,18 +125,18 @@
       self.midiBtn.div.addEventListener('click', function() { self.settings(); });
       self.gui.appendChild(self.midiBtn.div);
 
-      self.select = document.createElement('select');
-      self.select.style.position = 'absolute';
-      self.select.style.top = '30px';
-      self.select.style.left = '40px';
-      self.select.style.width = '230px';
-      self.select.style.display = 'none';
-      self.select.style.zIndex = 1;
-      self.select.addEventListener('click', function() { self._selected(); });
-      self.select.addEventListener('keydown', function(e) { self._keydown(e); });
-      self.select.addEventListener('focusout', function() { self._closeselect(); });
+      self.sel = document.createElement('select');
+      self.sel.style.position = 'absolute';
+      self.sel.style.top = '30px';
+      self.sel.style.left = '40px';
+      self.sel.style.width = '230px';
+      self.sel.style.display = 'none';
+      self.sel.style.zIndex = 1;
+      self.sel.addEventListener('click', function() { self._selected(); });
+      self.sel.addEventListener('keydown', function(e) { self._keydown(e); });
+      self.sel.addEventListener('focusout', function() { self._closeselect(); });
 
-      self.gui.appendChild(self.select);
+      self.gui.appendChild(self.sel);
     }
     else self.midiBtn = _noBtn;
 
@@ -164,7 +165,7 @@
       if (window.FileReader) {
         self.fileBtn.off();
         self.fileBtn.div.addEventListener('click', function() { self.fileInput.click(); });
-        self.fileInput.addEventListener('change', function(e) { _stopProp(e); self.readFile(e.target.files[0]); });
+        self.fileInput.addEventListener('change', function(e) { _stopProp(e); if (e.target.files[0]) self.readFile(e.target.files[0]); });
         self.gui.addEventListener('drop', function(e) { _stopProp(e); self.fileBtn.off(); self.readFile(e.dataTransfer.files[0]); });
         self.gui.addEventListener('dragover', function(e) { _stopProp(e); self.fileBtn.on(); e.dataTransfer.dropEffect = 'copy'; });
         self.gui.addEventListener('dragexit', function(e) { _stopProp(e); self.fileBtn.off(); });
@@ -247,6 +248,7 @@
       link: false,
       midi: true,
       close: false,
+      ports: [undefined, /MIDI Through/i],
       connect: true
     };
     if (typeof x == 'object') for (var k in arg) if (arg.hasOwnProperty(k) && typeof x[k] != 'undefined') arg[k] = x[k];
@@ -254,6 +256,9 @@
     if (typeof arg.x == 'undefined') arg.x = x;
     if (typeof arg.y == 'undefined') arg.y = y;
     _createGUI(this, arg);
+    if (!(arg.ports instanceof Array)) arg.ports = [arg.ports];
+    arg.ports.push(undefined);
+    this._ports = arg.ports;
     this._conn = arg.connect;
 
     if (typeof arg.at == 'string') {
@@ -330,9 +335,9 @@
       if (this._loop == 1) {
         this._loop = 0;
         this.loopBtn.off();
-        this.loopBtn.div.title = 'loop';
+        this.loopBtn.title('loop');
       }
-      else this.loopBtn.div.title = 'loop: ' + (this._loop == -1 ? '\u221e' : this._loop);
+      else this.loopBtn.title('loop: ' + (this._loop == -1 ? '\u221e' : this._loop));
     }
   };
   Player.prototype._move = function() {
@@ -357,9 +362,10 @@
       }
       else if (!this._waiting) {
         this._waiting = true;
-        JZZ().openMidiOut(undefined, /MIDI Through/i).and(function() {
+        JZZ().openMidiOut(self._ports).and(function() {
           self._out = this;
           self._outname = this.name();
+          self.midiBtn.title(self._outname);
           self._connect(this);
           self._waiting = false;
           if (self._playing) {
@@ -424,11 +430,11 @@
       this._player.loop(this._loop);
       if (this._loop) {
         this.loopBtn.on();
-        this.loopBtn.div.title = 'loop: ' + (this._loop == -1 ? '\u221e' : this._loop);
+        this.loopBtn.title('loop: ' + (this._loop == -1 ? '\u221e' : this._loop));
       }
       else {
         this.loopBtn.off();
-        this.loopBtn.div.title = 'loop';
+        this.loopBtn.title('loop');
       }
     }
   };
@@ -478,16 +484,17 @@
         JZZ.lib.schedule(function() { self.load(smf); });
         if (self.linkBtn) self.setUrl('data:audio/midi;base64,' + JZZ.lib.toBase64(data), f.name);
       }
-      catch (err) {}
+      catch (err) { console.log(err.message); }
     };
     reader.readAsArrayBuffer(f);
   };
 
   // selecting MIDI
 
+  Player.prototype.onSelect = function() {};
   Player.prototype._closeselect = function() {
     this.midiBtn.off();
-    this.select.style.display = 'none';
+    this.sel.style.display = 'none';
     this._more = false;
   };
   Player.prototype.settings = function() {
@@ -495,14 +502,14 @@
     var self = this;
     this._more = true;
     this.midiBtn.on();
-    this.select.style.display = 'inline-block';
+    this.sel.style.display = 'inline-block';
     JZZ().refresh().and(function() {
       var outs = this.info().outputs;
       var i;
-      for (i = 0; i < self.select.options.length; i++) self.select.remove(i);
-      for (i = 0; i < outs.length; i++) self.select[i] = new Option(outs[i].name, outs[i].name, outs[i].name == self._outname, outs[i].name == self._outname);
-      self.select.size = outs.length < 2 ? 2 : outs.length;
-      self.select.focus();
+      for (i = 0; i < self.sel.options.length; i++) self.sel.remove(i);
+      for (i = 0; i < outs.length; i++) self.sel[i] = new Option(outs[i].name, outs[i].name, outs[i].name == self._outname, outs[i].name == self._outname);
+      self.sel.size = outs.length < 2 ? 2 : outs.length;
+      self.sel.focus();
     });
   };
   Player.prototype._selectMidi = function() {
@@ -521,18 +528,23 @@
       self._connect(this);
       self._newname = undefined;
       self._closeselect();
+      self.midiBtn.title(self._outname);
+      setTimeout(function() { self.onSelect(self._outname); }, 0);
     });
   };
-  Player.prototype._selected = function() {
+  Player.prototype.select = function(name) {
     var self = this;
-    this._newname = this.select.options[this.select.selectedIndex].value;
+    this._newname = name;
     if (this._newname == this._outname) {
       this._newname = undefined;
-      self._closeselect();
+      this._closeselect();
     }
     else {
       setTimeout(function() { self._selectMidi(); }, 0);
     }
+  };
+  Player.prototype._selected = function() {
+    this.select(this.sel.options[this.sel.selectedIndex].value);
   };
   Player.prototype._keydown = function(e) {
     if (e.keyCode == 13 || e.keyCode == 32) this._selected();
