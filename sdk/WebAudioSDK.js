@@ -333,10 +333,12 @@ class WebAudioPluginFactory {
       try {
         // DO THIS ONLY ONCE. If another instance has already been added, do not add the html file again
         let url = this.baseUrl + "/main.html";
+        
 
-        if (!this.linkExists(url)) {
+        if (!this.importReady) {
           // LINK DOES NOT EXIST, let's add it to the document
-          this.createLinkRelEqualImport(url).then((element) => {
+          this.importReady = this.createLinkRelEqualImport(url);
+          this.importReady.then((element) => {
             resolve(element);
           });
         } else {
@@ -348,8 +350,10 @@ class WebAudioPluginFactory {
             var element = window['create' + this.classname.toString()](this.plug);
             resolve(element);
              }, 3000)*/
-             var element = window['create' + this.classname.toString()](this.plug);
-            resolve(element);
+             this.importReady.then(() => {
+              var element = window['create' + this.classname.toString()](this.plug);
+              resolve(element);
+            });
             
          }
       } catch (e) {
@@ -366,4 +370,3 @@ class WebAudioPluginFactory {
 
 
 }
-
