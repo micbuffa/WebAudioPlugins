@@ -1,4 +1,4 @@
-<template>
+<template id="template-midi-player">
   <style>
     :host {
       display: inline-block;
@@ -11,7 +11,7 @@
   <div id=player></div></template>
 
 <script>
-  let MidiPlayertemp = document.currentScript.ownerDocument.querySelector('template');
+  let MidiPlayertemp = document.currentScript.ownerDocument.querySelector('#template-midi-player');
 
   class MidiPlayerGui extends HTMLElement {
     constructor(plug) {

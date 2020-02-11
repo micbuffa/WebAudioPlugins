@@ -1,6 +1,6 @@
 <script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/bower_components/webaudio-controls2/webaudio-controls.js"></script>
 <script>WebAudioControlsOptions = { useMidi: 1, };</script>
-<template>
+<template id="template-tutorial-lowfilter">
   <style>
     :host {
       display: block;
@@ -57,7 +57,7 @@
   </div>
 </template>
 <script>
-  let lowfiltertemp = document.currentScript.ownerDocument.querySelector('template');
+  let lowfiltertemp = document.currentScript.ownerDocument.querySelector('#template-tutorial-lowfilter');
   class LowfilterGui extends HTMLElement {
     constructor(plug) {
       super();

@@ -1,4 +1,4 @@
-<template>
+<template id="template-midi-out">
   <style>
     :host {
       display: inline-block;
@@ -21,7 +21,7 @@
 </template>
 
 <script>
-  let MidiOuttemp = document.currentScript.ownerDocument.querySelector('template');
+  let MidiOuttemp = document.currentScript.ownerDocument.querySelector('#template-midi-out');
 
   class MidiOutGui extends HTMLElement {
     constructor(plug) {

@@ -1,4 +1,4 @@
-<template>
+<template id="template-midi-monitor">
   <style>
     :host {
       display: inline-block;
@@ -19,7 +19,7 @@
 </template>
 
 <script>
-  let MidiMonitortemp = document.currentScript.ownerDocument.querySelector('template');
+  let MidiMonitortemp = document.currentScript.ownerDocument.querySelector('#template-midi-monitor');
 
   class MidiMonitorGui extends HTMLElement {
     constructor(plug) {

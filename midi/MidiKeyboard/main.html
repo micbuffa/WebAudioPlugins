@@ -1,4 +1,4 @@
-<template>
+<template id="template-midi-keyboard">
   <style>
     :host {
       display: inline-block;
@@ -37,7 +37,7 @@
 </template>
 
 <script>
-  let MidiKeyboardtemp = document.currentScript.ownerDocument.querySelector('template');
+  let MidiKeyboardtemp = document.currentScript.ownerDocument.querySelector('#template-midi-keyboard');
 
   class MidiKeyboardGui extends HTMLElement {
     constructor(plug) {
