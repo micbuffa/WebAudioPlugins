@@ -121,7 +121,7 @@ The class **WebAudioPluginFactory** contains methods to fetch and load your WAP.
  **First** define an html/css template
 
  ```html
-<template>
+<template id="template-lowpass">
 	<style>
     #cutoff{
       /* Absolute position*/
@@ -150,7 +150,7 @@ After that, go to the [knobgalery](https://www.g200kg.com/en/webknobman/gallery.
 **When your template is done**, clone it in a webcomponent shadowroot.
 
 ```js
-let lowfiltertemp = document.currentScript.ownerDocument.querySelector('template');
+let lowfiltertemp = document.currentScript.ownerDocument.querySelector('#template-lowpass');
 	class PluginNameGui extends HTMLElement {
 		constructor(plug) {
 			super();
@@ -171,7 +171,7 @@ let lowfiltertemp = document.currentScript.ownerDocument.querySelector('template
 
 ```js
   setUp(){
-    this._root.querySelector("#cutoff").querySelector("input").addEvenetListener("input", (e)=>{this._plug.setParam("cutoff", e.target.value)})
+    this._root.querySelector("#cutoff").querySelector("input").addEventListener("input", (e)=>{this._plug.setParam("cutoff", e.target.value)})
   }
 ```
 **if you choose to use webaudio-knobs**, set the src :
