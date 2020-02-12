@@ -180,7 +180,7 @@ let lowfiltertemp = document.currentScript.ownerDocument.querySelector('#templat
 this._root.querySelector("#cutoff").querySelector("webaudio-knob").setAttribute('src', this._plug.URL + '/assets/knobFile.png');
 ```
 
-**Last** step is to create a function that build this GUIand register it (out of the class) : 
+**Last** step is to create a function that builds this GUI and registers it (out of the class) : 
 
 ```js
 try {
