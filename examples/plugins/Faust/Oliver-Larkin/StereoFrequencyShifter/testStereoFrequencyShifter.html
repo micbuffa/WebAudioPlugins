@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Host that loads a plugin with its GUI</title>
+  <meta http-equiv="origin-trial" data-feature="AudioWorklet" data-expires="2018-03-06" content="AuqouVYOpuBqGUbQMwRTvnR9R5K1T0u5vw5KUqvZQSNox/gKa/dGig1VWcPYXUzuHN1OtTijH+lhVjg8has9RggAAABseyJvcmlnaW4iOiJodHRwczovL3dhc2FiaS5pM3MudW5pY2UuZnI6NDQzIiwiZmVhdHVyZSI6IkF1ZGlvV29ya2xldCIsImV4cGlyeSI6MTUyMDI5NDQwMCwiaXNTdWJkb21haW4iOnRydWV9">
+</head>
+
+<script src="../../../../../polyfills/webcomponents-lite.js"></script>
+
+<script src="main.js"></script>
+
+<body>
+  <audio src="./../../../../../assets/audio/BasketCaseGreendayriffDI.mp3" id="soundSample" controls loop></audio>
+  <button id="save">Save current state</button>
+  <button id="load">Load last saved state</button>
+</body>
+<script>
+  var ctx = new AudioContext();
+  var player = document.getElementById("soundSample");
+  player.onplay = () => {
+    ctx.resume().then(() => {
+      console.log('Playback resumed successfully');
+    });
+  }
+  var mediaSource = ctx.createMediaElementSource(player);
+  var state = {
+    "/zitaRev/Zita_Rev1/Decay_Times_in_Bands_(see_tooltips)/HF_Damping": "6000",
+    "/zitaRev/Zita_Rev1/Decay_Times_in_Bands_(see_tooltips)/LF_X": "200",
+    "/zitaRev/Zita_Rev1/Decay_Times_in_Bands_(see_tooltips)/Low_RT60": "3",
+    "/zitaRev/Zita_Rev1/Decay_Times_in_Bands_(see_tooltips)/Mid_RT60": "2",
+    "/zitaRev/Zita_Rev1/Input/In_Delay": "60",
+    "/zitaRev/Zita_Rev1/Output/Dry/Wet_Mix": "0",
+    "/zitaRev/Zita_Rev1/Output/Level": "-20",
+    "/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_1/Eq1_Freq": "315",
+    "/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_1/Eq1_Level": "0",
+    "/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_2/Eq2_Freq": "1500",
+    "/zitaRev/Zita_Rev1/RM_Peaking_Equalizer_2/Eq2_Level": "0",
+    "/zitaRev/bypass": "0"
+  };
+
+  var pluginURL = ".";
+  var plugin = new LarkinStereoFreqShifter(ctx, pluginURL);
+
+  plugin.load().then((node) => {
+    plugin.loadGui().then((elem) => {
+      document.body.appendChild(elem);
+      document.querySelector("#save").addEventListener('click', () => {
+        node.getState()
+          .then((data) => {
+            state = data;
+            console.log("State saved :", data);
+          })
+      });
+
+      document.querySelector("#load").addEventListener('click', () => {
+        node.setState(state).then((data) => {
+          console.log("State restored :", data)
+        })
+      });
+    });
+    console.log(node.getDescriptor());
+    console.log(node.jsoninfos);
+    mediaSource.connect(node);
+    node.connect(ctx.destination);
+  });
+</script>
+
+</html>

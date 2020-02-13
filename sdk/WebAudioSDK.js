@@ -95,7 +95,9 @@ AudioNode.prototype.connect = function (that) {
 class WebAudioPluginCompositeNode extends CompositeAudioNode {
   constructor(context, options) {
     super(context, options);
-    this.context = context ? context : new AudioContext;
+    
+    if(!context) throw "Audio context not initialized";
+
     this._descriptor = new Object();
     this.params = new Object();
     // Do stuffs below.

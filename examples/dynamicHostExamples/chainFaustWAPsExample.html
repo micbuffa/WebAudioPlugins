@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<style>
+  #waps{
+    display : flex;
+  }
+</style>
+<head>
+  <title>Host that loads a plugin with its GUI</title>
+  <meta http-equiv="origin-trial" data-feature="AudioWorklet" data-expires="2018-03-06" content="AuqouVYOpuBqGUbQMwRTvnR9R5K1T0u5vw5KUqvZQSNox/gKa/dGig1VWcPYXUzuHN1OtTijH+lhVjg8has9RggAAABseyJvcmlnaW4iOiJodHRwczovL3dhc2FiaS5pM3MudW5pY2UuZnI6NDQzIiwiZmVhdHVyZSI6IkF1ZGlvV29ya2xldCIsImV4cGlyeSI6MTUyMDI5NDQwMCwiaXNTdWJkb21haW4iOnRydWV9">
+</head>
+<script src="../../polyfills/webcomponents-lite.js"></script>
+
+<script src="../plugins/Faust/ZitaRevV3/main.js"></script>
+<script src="../plugins/Faust/Oliver-Larkin/WeirdPhaser/main.js"></script>
+<script src="../plugins/Faust/Oliver-Larkin/StereoFrequencyShifter/main.js"></script>
+<script src="../plugins/Faust/Oliver-Larkin/ThruZeroFlanger/main.js"></script>
+<body>
+<h1>CHAINED FAUST WAP</h1>
+<audio src="../../assets/audio/BasketCaseGreendayriffDI.mp3" id="soundSample" controls loop></audio>
+
+<div id="waps"></div>
+</body>
+<script>
+  
+  var ctx = new AudioContext();
+  var player = document.getElementById("soundSample");
+  var mediaSource = ctx.createMediaElementSource(player);
+  var plugin1 = new FaustZitaRev2(ctx, "../plugins/Faust/ZitaRevV3");
+  var plugin2 = new LarkinWeirdPhaser(ctx, "../plugins/Faust/Oliver-Larkin/WeirdPhaser");
+  var plugin3 = new LarkinStereoFreqShifter(ctx, "../plugins/Faust/Oliver-Larkin/StereoFrequencyShifter");
+  var plugin4 = new LarkinThruZeroFlanger(ctx, "../plugins/Faust/Oliver-Larkin/ThruZeroFlanger");
+  var waps = document.getElementById("waps");
+
+Promise.all([plugin1.load(),plugin2.load(),plugin3.load(),plugin4.load()]).then(plugins=>{
+
+  Promise.all([plugin1.loadGui(),plugin2.loadGui(),plugin3.loadGui(),plugin4.loadGui()]).then(wrappers=>{
+  waps.appendChild(wrappers[0]);
+  waps.appendChild(wrappers[1]);  
+  waps.appendChild(wrappers[2]);  
+  waps.appendChild(wrappers[3]);  
+});
+  mediaSource.connect(plugins[0]);
+  plugins[0].connect(plugins[1]);
+  plugins[1].connect(plugins[2]);
+  plugins[2].connect(plugins[3]);
+  plugins[3].connect(ctx.destination);
+
+});
+</script>
+
+</html>
