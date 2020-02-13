@@ -42,7 +42,7 @@ Along with the online documentation, we propose simple examples/tutorials both f
 
 **Example 1: very simple HTML page that acts as a host by loading a headless plug-in**: the source code below shows extracts of a minimal host implementation that loads a headless plug-in and connects it to the Web Audio graph:
 
-[This example can be tried online at JsBin](https://jsbin.com/wihuyiwuya/edit?html,output)
+[This example can be tried online at JsBin](https://jsbin.com/budaketazo/edit?html,js,output)
 
 ```html
 <!DOCTYPE html>
