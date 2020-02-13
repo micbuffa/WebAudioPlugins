@@ -42,7 +42,7 @@ Along with the online documentation, we propose simple examples/tutorials both f
 
 **Example 1: very simple HTML page that acts as a host by loading a headless plug-in**: the source code below shows extracts of a minimal host implementation that loads a headless plug-in and connects it to the Web Audio graph:
 
-[This example can be tried online at JsBin](https://jsbin.com/budaketazo/edit?html,js,output)
+[This example can be tried online at JsBin](https://jsbin.com/moqutizono/edit?html,js,output)
 
 ```html
 <!DOCTYPE html>
@@ -51,6 +51,7 @@ Along with the online documentation, we propose simple examples/tutorials both f
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
   <title>JS Bin</title>
+  <script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/polyfills/webcomponents-lite.js"></script>
   <script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/sdk/WebAudioSDK.js"></script>
   <script src="https://wasabi.i3s.unice.fr/WebAudioPluginBank/WASABI/PingPongDelay3/main.js"></script>
 
@@ -84,7 +85,7 @@ More detailed examples are available on the documentation pages of the WAP propo
 
 ![WAP pluginWithGUI](/imgs/PluginWithGUI.png)
 
-[This example can be tried online at JsBin](https://jsbin.com/jeretab/edit?js,output)
+[This example can be tried online at JsBin](https://jsbin.com/ralaziroxe/edit?html,js,output)
 
 
 ```javascript
